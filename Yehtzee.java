@@ -5,8 +5,11 @@
  */
 package Yehtzee_game_project;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +17,9 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 /**
  *
@@ -223,12 +229,13 @@ public class Yehtzee {
 
     }
 
-    public static int[] rollDice() {
+    public static int[] rollDice(JLabel[] dices_labeles) {
         int dices[] = new int[5];
         Random rn = new Random();
         for (int i = 0; i < dices.length; i++) {
             dices[i] = rn.nextInt(6) + 1;
         }
+        loadIconToImage(dices_labeles, dices);
         return dices;
     }
 
@@ -246,7 +253,6 @@ public class Yehtzee {
         }
         return sum;
     }
-    
 
     public static void printArray(int arr[]) {
         for (int i = 0; i < arr.length; i++) {
@@ -254,12 +260,28 @@ public class Yehtzee {
         }
         System.out.println("");
     }
-    
+
     public static void printScore() {
         List<String> temp = readFile("src/yehtzee/yeht.txt");
         for (int i = 0; i < scores.length; i++) {
-            System.out.println(temp.get(i)+": "+scores[i]);
+            System.out.println(temp.get(i) + ": " + scores[i]);
         }
     }
-    
+
+    public static void loadIconToImage(JLabel[] dices_labeles, int dices[]) {
+        Random rn = new Random();
+        for (int q = 0; q < dices_labeles.length; q++) {
+            BufferedImage img = null;
+            try {
+                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + dices[q] + ".png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Image dimg = img.getScaledInstance(dices_labeles[q].getWidth(), dices_labeles[q].getHeight(),
+                    Image.SCALE_SMOOTH);
+            ImageIcon icon = new ImageIcon(dimg);
+            dices_labeles[q].setIcon(icon);
+        }
+    }
+
 }
