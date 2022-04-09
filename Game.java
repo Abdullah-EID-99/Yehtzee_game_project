@@ -5,6 +5,7 @@
  */
 package Yehtzee_game_project;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -23,10 +24,14 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Game extends javax.swing.JFrame {
 
+    public JLabel[] getDices_labeles() {
+        return dices_labeles;
+    }
     /**
      * Creates new form Game
      */
     JLabel dices_labeles[] = new JLabel[5];
+    JLabel hedef_labeles[] = new JLabel[5];
     DefaultTableModel tableModel = new DefaultTableModel();
     int length = 0;
 
@@ -37,6 +42,11 @@ public class Game extends javax.swing.JFrame {
         dices_labeles[2] = dice_3;
         dices_labeles[3] = dice_4;
         dices_labeles[4] = dice_5;
+        hedef_labeles[0] = dice_6;
+        hedef_labeles[1] = dice_7;
+        hedef_labeles[2] = dice_8;
+        hedef_labeles[3] = dice_9;
+        hedef_labeles[4] = dice_10;
 
         tableModel.setColumnIdentifiers(new String[]{"Type", "player1", "player2"});
         List<String> scoreTypes = Yehtzee.readFile("src/yehtzee/yeht.txt");
@@ -49,7 +59,8 @@ public class Game extends javax.swing.JFrame {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (rn.nextInt(6) + 1) + ".png"));
+                //img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (rn.nextInt(6) + 1) + ".png"));
+                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (6) + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -85,6 +96,7 @@ public class Game extends javax.swing.JFrame {
         dice_10 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         scoreTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -114,127 +126,73 @@ public class Game extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(scoreTable);
 
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(399, 13, 314, 290));
+
         jButton1.setText("Roll Dice");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
+        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(159, 396, -1, -1));
 
         dice_1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_1.setText("jLabel1");
+        getContentPane().add(dice_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 328, 58, 55));
 
         dice_2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_2.setText("jLabel1");
+        getContentPane().add(dice_2, new org.netbeans.lib.awtextra.AbsoluteConstraints(108, 328, 58, 55));
 
         dice_4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_4.setText("jLabel1");
+        getContentPane().add(dice_4, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 328, 58, 55));
 
         dice_5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_5.setText("jLabel1");
+        getContentPane().add(dice_5, new org.netbeans.lib.awtextra.AbsoluteConstraints(336, 328, 58, 55));
 
+        dice_3.setBackground(new java.awt.Color(255, 255, 255));
+        dice_3.setForeground(new java.awt.Color(255, 255, 255));
         dice_3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_3.setText("jLabel1");
+        dice_3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        getContentPane().add(dice_3, new org.netbeans.lib.awtextra.AbsoluteConstraints(184, 328, 58, 55));
 
         dice_6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_6.setText("jLabel1");
+        getContentPane().add(dice_6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 140, 58, 55));
 
         dice_7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_7.setText("jLabel1");
+        getContentPane().add(dice_7, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 140, 58, 55));
 
         dice_8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_8.setText("jLabel1");
+        dice_8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dice_8MouseClicked(evt);
+            }
+        });
+        getContentPane().add(dice_8, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 140, 58, 55));
 
         dice_9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_9.setText("jLabel1");
+        getContentPane().add(dice_9, new org.netbeans.lib.awtextra.AbsoluteConstraints(108, 229, 58, 55));
 
         dice_10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        dice_10.setText("jLabel1");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(159, 159, 159)
-                                .addComponent(jButton1))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(32, 32, 32)
-                                .addComponent(dice_1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(dice_9, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(55, 55, 55)
-                                        .addComponent(dice_10, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(dice_2, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(dice_3, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(dice_4, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(dice_5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(63, 63, 63)
-                        .addComponent(dice_6, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(44, 44, 44)
-                        .addComponent(dice_7, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
-                        .addComponent(dice_8, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(71, 71, 71)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 314, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(dice_8, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dice_7, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dice_6, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(28, 28, 28)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(dice_9, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dice_10, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(44, 44, 44)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dice_1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(dice_2, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(dice_3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(dice_4, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(dice_5, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addGap(19, 19, 19))
-        );
+        getContentPane().add(dice_10, new org.netbeans.lib.awtextra.AbsoluteConstraints(221, 229, 58, 55));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        int dices[] = Yehtzee.rollDice(dices_labeles);
+        int dices[] = Yehtzee.rollDice(hedef_labeles);
         Yehtzee.play(dices);
         for (int i = 0; i < Yehtzee.scores.length; i++) {
             tableModel.setValueAt(Yehtzee.scores[i], i, 1);
         }
         Yehtzee.printArray(dices);
-        Yehtzee.printScore();
+        //Yehtzee.printScore();
         Yehtzee.printArray(Yehtzee.upperSectionCombinations);
+        
+        for (int q = 0; q < dices_labeles.length; q++) {
+
+            dices_labeles[q].setIcon(null);
+            dices_labeles[q].setBackground(Color.red);
+        }
         /*
         new Thread() {
 
@@ -254,6 +212,12 @@ public class Game extends javax.swing.JFrame {
             }
         }.start();*/
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void dice_8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dice_8MouseClicked
+        // TODO add your handling code here:
+        dices_labeles[8-dices_labeles.length].setIcon(hedef_labeles[8-6].getIcon());
+        hedef_labeles[8-6].setIcon(null);
+    }//GEN-LAST:event_dice_8MouseClicked
 
     /**
      * @param args the command line arguments

@@ -36,7 +36,7 @@ public class Yehtzee {
     public static final int CHANCE = 5;
     public static final int YAHTZEE = 6;
     static int[] upperSectionCombinations;
-    static int[] lowerSectionCombinations = new int[7];
+    static int[] lowerSectionCombinations;
     static int[] scores;
     static List<String> data;
 
@@ -176,6 +176,7 @@ public class Yehtzee {
     }
 
     public static void play(int dices[]) {
+        lowerSectionCombinations = new int[7];
         scores = new int[13];
         calculateUpperSectionCombinations(dices);
         for (int i = 0; i < upperSectionCombinations.length; i++) {
@@ -191,10 +192,11 @@ public class Yehtzee {
                 case 3:
                     lowerSectionCombinations[THREE_OF_KIND] = 1;
                     scores[upperSectionCombinations.length + THREE_OF_KIND] = sumOfArray(dices);
-                    if (TWO_OF_KIND) {
+                    if (TWO_OF_KIND == true) {
                         lowerSectionCombinations[FULL_HOUSE] = 1;
                         scores[upperSectionCombinations.length + FULL_HOUSE] = 25;
                     }
+                    TWO_OF_KIND = false;
                     break;
                 case 4:
                     lowerSectionCombinations[THREE_OF_KIND] = 1;
