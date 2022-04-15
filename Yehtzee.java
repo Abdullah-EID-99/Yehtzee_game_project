@@ -21,7 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 
 /**
  *
@@ -184,7 +186,7 @@ public class Yehtzee {
         calculateUpperSectionCombinations(dices);
         for (int i = 0; i < upperSectionCombinations.length; i++) {
             temp_scores[i] = upperSectionCombinations[i] * (i + 1);
-            
+
             switch (upperSectionCombinations[i]) {
                 case 2:
                     if (lowerSectionCombinations[THREE_OF_KIND] == 1) {
@@ -241,7 +243,7 @@ public class Yehtzee {
         for (int i = 0; i < dices.length; i++) {
             dices[i] = rn.nextInt(6) + 1;
         }
-        loadIconToImage(dices_labeles, dices);
+        loadIconToLabel(dices_labeles, dices);
         return dices;
     }
 
@@ -274,7 +276,7 @@ public class Yehtzee {
         }
     }
 
-    public static void loadIconToImage(JLabel[] dices_labeles, int dices[]) {
+    public static void loadIconToLabel(JLabel[] dices_labeles, int dices[]) {
         Random rn = new Random();
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
@@ -289,10 +291,20 @@ public class Yehtzee {
             dices_labeles[q].setIcon(icon);
         }
     }
-    static void startGame(){
+
+    static void startGame() {
         for (int i = 0; i < scores.length; i++) {
             scores[i] = -1;
         }
+    }
+
+    static int[] rollSpecificDices(int[] dices,ArrayList<Integer> indexes, JLabel[] middle_labeles) {
+        Random rn = new Random();
+        for (Integer indexe : indexes) {
+              dices[indexe] = rn.nextInt(6) + 1;
+        }
+        
+        return dices;
     }
 
 }
