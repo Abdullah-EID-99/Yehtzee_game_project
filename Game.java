@@ -5,15 +5,12 @@
  */
 package Yehtzee_game_project;
 
+import com.sun.glass.events.KeyEvent;
 import game.Message;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -30,9 +27,9 @@ import javax.swing.table.DefaultTableModel;
  * @author Dell
  */
 public class Game extends javax.swing.JFrame {
+
     int rollCount = 0;
     Client me;
-    int dices[];
     JLabel[] myLabels = new JLabel[5];
     JLabel[] middle_labeles = new JLabel[5];
     JLabel[] rivalLabels = new JLabel[5];
@@ -57,19 +54,30 @@ public class Game extends javax.swing.JFrame {
         send_message_btn.setEnabled(true);
     }
 
-    ArrayList<Integer> checkIfCheckBoxIsSelected() {
-        ArrayList<Integer> arr = new ArrayList<>();
+    int[] checkIfCheckBoxIsSelected() {
+        int[] indexes = new int[dices_checkBoxes.length];
         for (int i = 0; i < dices_checkBoxes.length; i++) {
             if (dices_checkBoxes[i].isSelected()) {
-                arr.add(i);
+                indexes[i] = 1;
+            } else {
+                indexes[i] = 0;
             }
         }
-        return arr;
+        return indexes;
     }
-    void clearCheckBoxSelection(){
+
+    void clearCheckBoxSelection() {
         for (JCheckBox checkBox : dices_checkBoxes) {
             checkBox.setSelected(false);
         }
+    }
+
+    int arraySum(int[] arr) {
+        int sum = 0;
+        for (int i = 0; i < arr.length; i++) {
+            sum += arr[i];
+        }
+        return sum;
     }
 
     public Game() {
@@ -108,7 +116,7 @@ public class Game extends javax.swing.JFrame {
             BufferedImage img = null;
             try {
                 //img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (rn.nextInt(6) + 1) + ".png"));
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (6) + ".png"));
+                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (q + 2) + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -153,37 +161,41 @@ public class Game extends javax.swing.JFrame {
         start_btn = new javax.swing.JButton();
         send_message_btn = new javax.swing.JButton();
         messge_txt_field = new javax.swing.JTextField();
-        recieved_message_label = new javax.swing.JLabel();
         rival_dice_1 = new javax.swing.JLabel();
         rival_dice_2 = new javax.swing.JLabel();
         rival_dice_4 = new javax.swing.JLabel();
         rival_dice_5 = new javax.swing.JLabel();
         rival_dice_3 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        Text_area_recieved_message = new javax.swing.JTextArea();
+        win = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(780, 580));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
             }
         });
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         scoreTable.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         scoreTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, true, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -202,6 +214,8 @@ public class Game extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(scoreTable);
 
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, 314, 290));
+
         rollDice_btn.setText("Roll Dice");
         rollDice_btn.setEnabled(false);
         rollDice_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -209,27 +223,49 @@ public class Game extends javax.swing.JFrame {
                 rollDice_btnActionPerformed(evt);
             }
         });
+        getContentPane().add(rollDice_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(159, 406, -1, -1));
 
         dice_1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
+        getContentPane().add(dice_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 344, 58, 55));
 
         dice_2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
+        getContentPane().add(dice_2, new org.netbeans.lib.awtextra.AbsoluteConstraints(108, 344, 58, 55));
 
         dice_4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
+        getContentPane().add(dice_4, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 344, 58, 55));
 
         dice_5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
+        getContentPane().add(dice_5, new org.netbeans.lib.awtextra.AbsoluteConstraints(336, 344, 58, 55));
 
         dice_3.setBackground(new java.awt.Color(255, 255, 255));
         dice_3.setForeground(new java.awt.Color(255, 255, 255));
         dice_3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
         dice_3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        getContentPane().add(dice_3, new org.netbeans.lib.awtextra.AbsoluteConstraints(184, 344, 58, 55));
+        getContentPane().add(dice_6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 140, 58, 55));
+        getContentPane().add(dice_7, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 140, 58, 55));
+        getContentPane().add(dice_8, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 140, 58, 55));
+        getContentPane().add(dice_9, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 230, 58, 55));
+        getContentPane().add(dice_10, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 230, 58, 55));
+        getContentPane().add(CheckBox_10, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 290, -1, -1));
+        getContentPane().add(CheckBox_6, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
+        getContentPane().add(CheckBox_7, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 200, -1, -1));
+        getContentPane().add(CheckBox_8, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 200, -1, -1));
+        getContentPane().add(CheckBox_9, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 290, -1, -1));
 
-        dice_8.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                dice_8MouseClicked(evt);
-            }
-        });
+        rival_name_label.setForeground(new java.awt.Color(0, 33, 212));
+        getContentPane().add(rival_name_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 190, 25));
 
         jLabel2.setText("Name: ");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 450, -1, 25));
+
+        name_txt_field.setForeground(new java.awt.Color(0, 216, 43));
+        name_txt_field.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                name_txt_fieldKeyTyped(evt);
+            }
+        });
+        getContentPane().add(name_txt_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 450, 157, -1));
 
         start_btn.setText("Start");
         start_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -237,158 +273,44 @@ public class Game extends javax.swing.JFrame {
                 start_btnActionPerformed(evt);
             }
         });
+        getContentPane().add(start_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 450, -1, -1));
 
-        send_message_btn.setText("send mesg");
+        send_message_btn.setText("send ");
         send_message_btn.setEnabled(false);
         send_message_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 send_message_btnActionPerformed(evt);
             }
         });
+        getContentPane().add(send_message_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 460, 70, -1));
 
         messge_txt_field.setEnabled(false);
+        messge_txt_field.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                messge_txt_fieldKeyTyped(evt);
+            }
+        });
+        getContentPane().add(messge_txt_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 460, 240, -1));
+
+        rival_dice_1.setBackground(new java.awt.Color(255, 255, 255));
+        rival_dice_1.setForeground(new java.awt.Color(255, 255, 255));
+        getContentPane().add(rival_dice_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 45, 58, 55));
+        getContentPane().add(rival_dice_2, new org.netbeans.lib.awtextra.AbsoluteConstraints(101, 45, 58, 55));
+        getContentPane().add(rival_dice_4, new org.netbeans.lib.awtextra.AbsoluteConstraints(253, 45, 58, 55));
+        getContentPane().add(rival_dice_5, new org.netbeans.lib.awtextra.AbsoluteConstraints(329, 45, 58, 55));
 
         rival_dice_3.setBackground(new java.awt.Color(255, 255, 255));
         rival_dice_3.setForeground(new java.awt.Color(255, 255, 255));
         rival_dice_3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        getContentPane().add(rival_dice_3, new org.netbeans.lib.awtextra.AbsoluteConstraints(177, 45, 58, 55));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(106, 106, 106)
-                                .addComponent(rival_name_label, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(rival_dice_1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(rival_dice_2, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(rival_dice_3, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(rival_dice_4, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(35, 35, 35)
-                                .addComponent(dice_6, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(52, 52, 52)
-                                .addComponent(dice_7, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(42, 42, 42)
-                                .addComponent(dice_8, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(52, 52, 52)
-                                .addComponent(CheckBox_6)
-                                .addGap(85, 85, 85)
-                                .addComponent(CheckBox_7)
-                                .addGap(75, 75, 75)
-                                .addComponent(CheckBox_8))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(83, 83, 83)
-                                .addComponent(dice_9, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(55, 55, 55)
-                                .addComponent(dice_10, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(1, 1, 1)
-                        .addComponent(rival_dice_5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 314, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(127, 127, 127)
-                        .addComponent(CheckBox_9)
-                        .addGap(85, 85, 85)
-                        .addComponent(CheckBox_10))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
-                        .addComponent(dice_1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(dice_2, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(dice_3, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(dice_4, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(dice_5, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(62, 62, 62)
-                        .addComponent(messge_txt_field, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(7, 7, 7)
-                        .addComponent(send_message_btn))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(159, 159, 159)
-                        .addComponent(rollDice_btn)
-                        .addGap(216, 216, 216)
-                        .addComponent(recieved_message_label, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(86, 86, 86)
-                        .addComponent(jLabel2)
-                        .addGap(5, 5, 5)
-                        .addComponent(name_txt_field, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(start_btn)))
-                .addGap(12, 12, 12))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(13, 13, 13)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(rival_name_label, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(7, 7, 7)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(rival_dice_1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(rival_dice_2, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(rival_dice_3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(rival_dice_4, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(56, 56, 56)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dice_6, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dice_7, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dice_8, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(5, 5, 5)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(CheckBox_6)
-                            .addComponent(CheckBox_7)
-                            .addComponent(CheckBox_8))
-                        .addGap(4, 4, 4)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dice_9, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dice_10, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
-                        .addComponent(rival_dice_5, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CheckBox_9)
-                    .addComponent(CheckBox_10))
-                .addGap(13, 13, 13)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dice_1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dice_2, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dice_3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dice_4, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dice_5, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(messge_txt_field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(send_message_btn)))
-                .addGap(7, 7, 7)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(recieved_message_label, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rollDice_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(1, 1, 1)
-                        .addComponent(name_txt_field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(start_btn)))
-        );
+        Text_area_recieved_message.setEditable(false);
+        Text_area_recieved_message.setColumns(20);
+        Text_area_recieved_message.setRows(5);
+        jScrollPane2.setViewportView(Text_area_recieved_message);
+
+        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 320, 320, 130));
+        getContentPane().add(win, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 120, 260, 30));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -405,30 +327,18 @@ public class Game extends javax.swing.JFrame {
         myThread.stop();
         me.Stop();
     }//GEN-LAST:event_formWindowClosing
-
+    static int counterx = 0;
     private void start_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_btnActionPerformed
 
         rival_name_label.setText("waiting for rival ...");
         myThread = new Thread(() -> {
-
             me = new Client();
+            //me.Start("54.175.188.155", 2000);
             me.Start("localhost", 2000);
             me.Send(name_txt_field.getText(), Message.Message_Type.Name);
-            //                // Client Soket nesnesi
-            //                socket = new Socket("localhost", 2000);
-            //                System.out.println("Servera bağlandı");
-            //                // input stream
-            //                sInput = new ObjectInputStream(socket.getInputStream());
-            //                // output stream
-            //                sOutput = new ObjectOutputStream(socket.getOutputStream());
-            //
-            //                //ilk mesaj olarak isim gönderiyorum
-            //                Message msg = new Message(Message.Message_Type.Name);
-            //                msg.content = name_txt_field.getText();
-            //                sOutput.writeObject(msg);
-            //soket bağlı olduğu sürece dön
+            me.myName = name_txt_field.getText();
             start_btn.setEnabled(false);
-            name_txt_field.setEnabled(false);
+            name_txt_field.setEditable(false);
             while (me.socket.isConnected()) {
                 try {
                     //mesaj gelmesini bloking olarak dinyelen komut
@@ -440,6 +350,7 @@ public class Game extends javax.swing.JFrame {
                             break;
                         case RivalConnected:
                             String rivalName = received.content.toString();
+                            me.myRivalName = rivalName;
                             rival_name_label.setText(rivalName);
                             tableModel.setColumnIdentifiers(new String[]{"", name_txt_field.getText(), rivalName});
                             messge_txt_field.setEnabled(true);
@@ -450,7 +361,7 @@ public class Game extends javax.swing.JFrame {
                             break;
                         case Text:
                             String d = received.content.toString();
-                            recieved_message_label.setText(d);
+                            Text_area_recieved_message.append(me.myRivalName + ": " + d + "\n");
                             break;
                         case SelectedScore:
                             Integer rivalSelectedScore[] = (Integer[]) received.content;
@@ -479,7 +390,26 @@ public class Game extends javax.swing.JFrame {
                             clearLabeles(rivalLabels);
                             Yehtzee.loadIconToLabel(middle_labeles, dices);
                             break;
-
+                        case counter:
+                            counterx = (int) received.content;
+                            Text_area_recieved_message.setText("" + counterx);
+                            if (counterx == 26) {
+                                int totalScores = Yehtzee.totalScores();
+                                me.Send(totalScores, Message.Message_Type.finish_1);
+                            }
+                            break;
+                        case finish_1:
+                            int myScores = Yehtzee.totalScores();
+                            me.Send(myScores, Message.Message_Type.finish_2);
+                            int totalScores1 = (int) received.content;
+                            tableModel.setValueAt(totalScores1, 13, 2);
+                            tableModel.setValueAt(myScores, 13, 1);
+                            break;
+                        case finish_2:
+                            int totalScores2 = (int) received.content;
+                            tableModel.setValueAt(totalScores2, 13, 2);
+                            tableModel.setValueAt(Yehtzee.totalScores(), 13, 1);
+                            break;
                     }
 
                 } catch (IOException ex) {
@@ -503,83 +433,221 @@ public class Game extends javax.swing.JFrame {
         int row = scoreTable.getSelectedRow();
         int column = scoreTable.getSelectedColumn();
         if (row != -1 && column == 1 && Yehtzee.scores[row] == -1) {
-            if (JOptionPane.showConfirmDialog(this, "are you sure you want this score?") == JOptionPane.OK_OPTION) {
-                tableModel.setValueAt(Yehtzee.temp_scores[row], row, 1);
-                Yehtzee.scores[row] = Yehtzee.temp_scores[row];
-                Integer score[] = new Integer[2];
-                score[0] = row;
-                score[1] = Yehtzee.temp_scores[row];
-                me.Send(score, Message.Message_Type.SelectedScore);
-                rollDice_btn.setEnabled(false);
-                scoreTable.setEnabled(false);
-                scoreTable.clearSelection();
-                for (int i = 0; i < Yehtzee.scores.length; i++) {
-                    if (Yehtzee.scores[i] == -1) {
-                        tableModel.setValueAt(0, i, 1);
-                    }
+            //if (JOptionPane.showConfirmDialog(this, "are you sure you want this score?") == JOptionPane.OK_OPTION) {
+            tableModel.setValueAt(Yehtzee.temp_scores[row], row, 1);
+            Yehtzee.scores[row] = Yehtzee.temp_scores[row];
+            Integer score[] = new Integer[2];
+            score[0] = row;
+            score[1] = Yehtzee.temp_scores[row];
+            me.Send(score, Message.Message_Type.SelectedScore);
+            counterx++;
+            me.Send(counterx, Message.Message_Type.counter);
+            rollDice_btn.setEnabled(false);
+            scoreTable.setEnabled(false);
+            scoreTable.clearSelection();
+            for (int i = 0; i < Yehtzee.scores.length; i++) {
+                if (Yehtzee.scores[i] == -1) {
+                    tableModel.setValueAt("", i, 1);
                 }
-                for (int i = 0; i < rivalLabels.length; i++) {
-                    rivalLabels[i].setIcon(middle_labeles[i].getIcon());
-                }
-                clearLabeles(middle_labeles);
-                setVisibleCheckBoxes(dices_checkBoxes, false);
-                rollDice_btn.setEnabled(false);
+            }
+            for (int i = 0; i < rivalLabels.length; i++) {
+                rivalLabels[i].setIcon(middle_labeles[i].getIcon());
+            }
+            clearLabeles(middle_labeles);
+            setVisibleCheckBoxes(dices_checkBoxes, false);
+            rollDice_btn.setEnabled(false);
+            if (counterx < 26) {
 
                 me.Send(true, Message.Message_Type.start);
-                rollCount = 0;
             }
+            rollCount = 0;
+            //}
         }
     }//GEN-LAST:event_scoreTableMousePressed
-
-    private void dice_8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dice_8MouseClicked
-        // TODO add your handling code here:
-        myLabels[8 - myLabels.length].setIcon(middle_labeles[8 - 6].getIcon());
-        middle_labeles[8 - 6].setIcon(null);
-    }//GEN-LAST:event_dice_8MouseClicked
-
+    static int temp[];
     private void rollDice_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rollDice_btnActionPerformed
         // TODO add your handling code here:
         if (rollCount == 0) {
             scoreTable.setEnabled(true);
             setVisibleCheckBoxes(dices_checkBoxes, true);
+            clearLabeles(myLabels);
         }
         if (rollCount <= 2) {
-            if (checkIfCheckBoxIsSelected().size()>0) {
-                this.dices = Yehtzee.rollSpecificDices(dices, checkIfCheckBoxIsSelected(), middle_labeles);
-                Yehtzee.loadIconToLabel(middle_labeles, dices);
-                this.clearCheckBoxSelection();
+            int[] dices = new int[5];
+            int[] selectedItems = checkIfCheckBoxIsSelected();
+            int selectedCount = arraySum(selectedItems);
+            System.out.println("selectedCount " + selectedCount);
+            if (selectedCount == 0) {
+                dices = Yehtzee.rollDice(middle_labeles);
+
             } else {
-                this.dices = Yehtzee.rollDice(middle_labeles);
+                dices = Yehtzee.rollDice(middle_labeles);
+                for (int i = 0; i < selectedItems.length; i++) {
+                    if (selectedItems[i] == 0) {
+                        dices[i] = temp[i];
+                    }
+                }
+                Yehtzee.loadIconToLabel(middle_labeles, dices);
             }
+            temp = dices.clone();
             me.Send(dices, Message.Message_Type.dices);
-            Yehtzee.play(dices);
+            Yehtzee.calculateScores(dices);
+
             for (int i = 0; i < Yehtzee.temp_scores.length; i++) {
                 if (Yehtzee.scores[i] == -1) {
-                    tableModel.setValueAt(Yehtzee.temp_scores[i], i, 1);
+                    if (Yehtzee.temp_scores[i] / 10 == 0) {
+                        tableModel.setValueAt("-------(" + Yehtzee.temp_scores[i] + ")--------", i, 1);
+                    } else {
+                        tableModel.setValueAt("-------(" + Yehtzee.temp_scores[i] + ")-------", i, 1);
+                    }
+
                 }
             }
-            Yehtzee.printArray(dices);
-            //Yehtzee.printScore();
-            Yehtzee.printArray(Yehtzee.upperSectionCombinations);
 
-            clearLabeles(myLabels);
             rollCount++;
-        } else {
-            rollDice_btn.setEnabled(false);
+            if (rollCount == 3) {
+                rollDice_btn.setEnabled(false);
+            }
         }
+        clearCheckBoxSelection();
+
     }//GEN-LAST:event_rollDice_btnActionPerformed
 
     private void send_message_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_send_message_btnActionPerformed
         // TODO add your handling code here:
-        //        Message msg = new Message(Message.Message_Type.Text);
-        //        msg.content = messge_txt.getText();
-        //        try {
-        //            sOutput.writeObject(msg);
-        //        } catch (IOException ex) {
-        //            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-        //        }
         me.Send(messge_txt_field.getText(), Message.Message_Type.Text);
+        Text_area_recieved_message.append(me.myName + ": " + messge_txt_field.getText() + "\n");
+        messge_txt_field.setText("");
     }//GEN-LAST:event_send_message_btnActionPerformed
+
+    private void messge_txt_fieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_messge_txt_fieldKeyTyped
+        // TODO add your handling code here:
+        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+            me.Send(messge_txt_field.getText(), Message.Message_Type.Text);
+            Text_area_recieved_message.append(me.myName + ": " + messge_txt_field.getText() + "\n");
+            messge_txt_field.setText("");
+        }
+    }//GEN-LAST:event_messge_txt_fieldKeyTyped
+
+    private void name_txt_fieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_name_txt_fieldKeyTyped
+        // TODO add your handling code here:
+        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+
+            rival_name_label.setText("waiting for rival ...");
+            myThread = new Thread(() -> {
+                me = new Client();
+                //me.Start("54.175.188.155", 2000);
+                me.Start("localhost", 2000);
+                me.Send(name_txt_field.getText(), Message.Message_Type.Name);
+                me.myName = name_txt_field.getText();
+                start_btn.setEnabled(false);
+                name_txt_field.setEditable(false);
+                while (me.socket.isConnected()) {
+                    try {
+                        //mesaj gelmesini bloking olarak dinyelen komut
+                        Message received = (Message) (me.sInput.readObject());
+                        //mesaj gelirse bu satıra geçer
+                        //mesaj tipine göre yapılacak işlemi ayır.
+                        switch (received.type) {
+                            case Name:
+                                break;
+                            case RivalConnected:
+                                String rivalName = received.content.toString();
+                                me.myRivalName = rivalName;
+                                rival_name_label.setText(rivalName);
+                                tableModel.setColumnIdentifiers(new String[]{"", name_txt_field.getText(), rivalName});
+                                messge_txt_field.setEnabled(true);
+                                send_message_btn.setEnabled(true);
+
+                                break;
+                            case Disconnect:
+                                break;
+                            case Text:
+                                String d = received.content.toString();
+                                Text_area_recieved_message.append(me.myRivalName + ": " + d + "\n");
+                                break;
+                            case SelectedScore:
+                                Integer rivalSelectedScore[] = (Integer[]) received.content;
+                                System.out.println("score " + rivalSelectedScore[1]);
+                                tableModel.setValueAt(rivalSelectedScore[1], rivalSelectedScore[0], 2);
+                                break;
+                            case start:
+                                boolean start = (boolean) received.content;
+                                if (start) {
+                                    if (dice_1.getIcon() == null) {
+                                        for (int i = 0; i < myLabels.length; i++) {
+                                            myLabels[i].setIcon(middle_labeles[i].getIcon());
+                                        }
+                                        clearLabeles(middle_labeles);
+                                    }
+                                    rollDice_btn.setEnabled(true);
+                                } else {
+                                    for (int i = 0; i < rivalLabels.length; i++) {
+                                        rivalLabels[i].setIcon(myLabels[i].getIcon());
+                                    }
+                                    clearLabeles(myLabels);
+                                }
+                                break;
+                            case dices:
+                                int dices[] = (int[]) received.content;
+                                clearLabeles(rivalLabels);
+                                Yehtzee.loadIconToLabel(middle_labeles, dices);
+                                break;
+                            case counter:
+                                counterx = (int) received.content;
+                                Text_area_recieved_message.setText("" + counterx);
+                                if (counterx == 26) {
+                                    int totalScores = Yehtzee.totalScores();
+                                    me.Send(totalScores, Message.Message_Type.finish_1);
+                                }
+                                break;
+                            case finish_1:
+                                rollDice_btn.setEnabled(false);
+                                int myScores = Yehtzee.totalScores();
+                                me.Send(myScores, Message.Message_Type.finish_2);
+                                int totalScores1 = (int) received.content;
+                                tableModel.setValueAt(totalScores1, 13, 2);
+                                tableModel.setValueAt(myScores, 13, 1);
+
+                                break;
+                            case finish_2:
+                                rollDice_btn.setEnabled(false);
+                                int totalScores2 = (int) received.content;
+                                tableModel.setValueAt(totalScores2, 13, 2);
+                                tableModel.setValueAt(Yehtzee.totalScores(), 13, 1);
+                                boolean whoWin1 = Yehtzee.totalScores() > totalScores2;
+                                me.Send(whoWin1, Message.Message_Type.end);
+                                if (whoWin1) {
+                                    win.setText("You won :)");
+                                } else {
+                                    win.setText(me.myRivalName + " won :(");
+                                }
+                                break;
+                            case end:
+                                boolean whoWin2 = (boolean) received.content;
+                                if (!whoWin2) {
+                                    win.setText("You won :)");
+                                } else {
+                                    win.setText(me.myRivalName + " won :(");
+                                }
+                                break;
+                        }
+
+                    } catch (IOException ex) {
+
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        //Client.Stop();
+                        break;
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        //Client.Stop();
+                        break;
+                    }
+                }
+            });
+            myThread.start();
+        }
+    }//GEN-LAST:event_name_txt_fieldKeyTyped
 
     /**
      * @param args the command line arguments
@@ -622,6 +690,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JCheckBox CheckBox_7;
     private javax.swing.JCheckBox CheckBox_8;
     private javax.swing.JCheckBox CheckBox_9;
+    private javax.swing.JTextArea Text_area_recieved_message;
     private javax.swing.JLabel dice_1;
     private javax.swing.JLabel dice_10;
     private javax.swing.JLabel dice_2;
@@ -634,9 +703,9 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel dice_9;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField messge_txt_field;
     private javax.swing.JTextField name_txt_field;
-    private javax.swing.JLabel recieved_message_label;
     private javax.swing.JLabel rival_dice_1;
     private javax.swing.JLabel rival_dice_2;
     private javax.swing.JLabel rival_dice_3;
@@ -647,5 +716,6 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JTable scoreTable;
     private javax.swing.JButton send_message_btn;
     private javax.swing.JButton start_btn;
+    private javax.swing.JLabel win;
     // End of variables declaration//GEN-END:variables
 }

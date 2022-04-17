@@ -12,18 +12,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JRadioButton;
 
 /**
  *
@@ -61,11 +57,6 @@ public class Yehtzee {
         }
         data = scoreTypes;
         return scoreTypes;
-    }
-
-    public static List<Integer> calculateScores(int dices[]) {
-
-        return null;
     }
 
     public static void calculateUpperSectionCombinations(int dices[]) {
@@ -180,7 +171,7 @@ public class Yehtzee {
         return sum;
     }
 
-    public static void play(int dices[]) {
+    public static void calculateScores(int dices[]) {
         lowerSectionCombinations = new int[7];
         temp_scores = new int[13];
         calculateUpperSectionCombinations(dices);
@@ -298,13 +289,22 @@ public class Yehtzee {
         }
     }
 
-    static int[] rollSpecificDices(int[] dices,ArrayList<Integer> indexes, JLabel[] middle_labeles) {
+    static int[] rollSpecificDices(int[] dices, ArrayList<Integer> indexes, JLabel[] middle_labeles) {
         Random rn = new Random();
+        int temp[] = dices.clone();
         for (Integer indexe : indexes) {
-              dices[indexe] = rn.nextInt(6) + 1;
+            temp[indexe] = rn.nextInt(6) + 1;
         }
-        
-        return dices;
+
+        return temp;
+    }
+
+    static int totalScores() {
+        int sum = 0;
+        for (int i = 0; i < scores.length; i++) {
+            sum += scores[i];
+        }
+        return sum;
     }
 
 }
