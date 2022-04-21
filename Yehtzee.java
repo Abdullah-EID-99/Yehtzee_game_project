@@ -8,15 +8,11 @@ package Yehtzee_game_project;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -39,25 +35,6 @@ public class Yehtzee {
     static int[] lowerSectionCombinations;
     static int[] temp_scores;
     static int[] scores = new int[13];
-    static List<String> data;
-
-    //  src/yehtzee/yeht.txt
-    public static List<String> readFile(String fileName) {
-
-        List<String> scoreTypes = new ArrayList<>();
-        try {
-            Scanner reader = new Scanner(new File(fileName));
-            while (reader.hasNext()) {
-                String nextLine = reader.nextLine();
-                String scoreType = nextLine.replace("\n", "");
-                scoreTypes.add(scoreType);
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Yehtzee.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        data = scoreTypes;
-        return scoreTypes;
-    }
 
     public static void calculateUpperSectionCombinations(int dices[]) {
         upperSectionCombinations = new int[6];
@@ -188,25 +165,21 @@ public class Yehtzee {
                     break;
                 case 3:
                     lowerSectionCombinations[THREE_OF_KIND] = 1;
-                    temp_scores[upperSectionCombinations.length + THREE_OF_KIND] = sumOfArray(dices);
-                    if (TWO_OF_KIND == true) {
-                        lowerSectionCombinations[FULL_HOUSE] = 1;
-                        temp_scores[upperSectionCombinations.length + FULL_HOUSE] = 25;
-                    }
+                    temp_scores[upperSectionCombinations.length + THREE_OF_KIND] = Utils.sumOfArray(dices);
                     TWO_OF_KIND = false;
                     break;
                 case 4:
                     lowerSectionCombinations[THREE_OF_KIND] = 1;
                     lowerSectionCombinations[FOUR_OF_KIND] = 1;
-                    temp_scores[upperSectionCombinations.length + THREE_OF_KIND] = sumOfArray(dices);
-                    temp_scores[upperSectionCombinations.length + FOUR_OF_KIND] = sumOfArray(dices);
+                    temp_scores[upperSectionCombinations.length + THREE_OF_KIND] = Utils.sumOfArray(dices);
+                    temp_scores[upperSectionCombinations.length + FOUR_OF_KIND] = Utils.sumOfArray(dices);
                     break;
                 case 5:
                     lowerSectionCombinations[THREE_OF_KIND] = 1;
                     lowerSectionCombinations[FOUR_OF_KIND] = 1;
                     lowerSectionCombinations[YAHTZEE] = 1;
-                    temp_scores[upperSectionCombinations.length + THREE_OF_KIND] = sumOfArray(dices);
-                    temp_scores[upperSectionCombinations.length + FOUR_OF_KIND] = sumOfArray(dices);
+                    temp_scores[upperSectionCombinations.length + THREE_OF_KIND] = Utils.sumOfArray(dices);
+                    temp_scores[upperSectionCombinations.length + FOUR_OF_KIND] = Utils.sumOfArray(dices);
                     temp_scores[upperSectionCombinations.length + YAHTZEE] = 50;
                     break;
                 default:
@@ -223,7 +196,11 @@ public class Yehtzee {
                 temp_scores[upperSectionCombinations.length + SMALL_STRAIGHT] = 30;
             }
             lowerSectionCombinations[CHANCE] = 1;
-            temp_scores[upperSectionCombinations.length + CHANCE] = sumOfArray(dices);
+            temp_scores[upperSectionCombinations.length + CHANCE] = Utils.sumOfArray(dices);
+        }
+        if (isFullHouse(dices)) {
+            temp_scores[upperSectionCombinations.length + FULL_HOUSE] = 25;
+
         }
 
     }
@@ -245,14 +222,6 @@ public class Yehtzee {
         }
     }
 
-    public static int sumOfArray(int arr[]) {
-        int sum = 0;
-        for (int i = 0; i < arr.length; i++) {
-            sum += arr[i];
-        }
-        return sum;
-    }
-
     public static void printArray(int arr[]) {
         for (int i = 0; i < arr.length; i++) {
             System.out.print(arr[i] + " ");
@@ -260,13 +229,12 @@ public class Yehtzee {
         System.out.println("");
     }
 
-    public static void printScore() {
-        List<String> temp = readFile("src/yehtzee/yeht.txt");
-        for (int i = 0; i < temp_scores.length; i++) {
-            System.out.println(temp.get(i) + ": " + temp_scores[i]);
-        }
-    }
-
+//    public static void printScore() {
+//        List<String> temp = readFile("src/yehtzee/yeht.txt");
+//        for (int i = 0; i < temp_scores.length; i++) {
+//            System.out.println(temp.get(i) + ": " + temp_scores[i]);
+//        }
+//    }
     public static void loadIconToLabel(JLabel[] dices_labeles, int dices[]) {
         Random rn = new Random();
         for (int q = 0; q < dices_labeles.length; q++) {
@@ -307,4 +275,9 @@ public class Yehtzee {
         return sum;
     }
 
+    static void reset() {
+        for (int i = 0; i < scores.length; i++) {
+            scores[i] = -1;
+        }
+    }
 }

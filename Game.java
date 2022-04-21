@@ -8,7 +8,6 @@ package Yehtzee_game_project;
 import com.sun.glass.events.KeyEvent;
 import game.Message;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,8 +20,6 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -215,7 +212,6 @@ public class Game extends javax.swing.JFrame {
     public Game() {
         initComponents();
         Yehtzee.startGame();
-
         myLabels[0] = dice_1;
         myLabels[1] = dice_2;
         myLabels[2] = dice_3;
@@ -238,7 +234,7 @@ public class Game extends javax.swing.JFrame {
         dices_checkBoxes[4] = CheckBox_10;
         setVisibleCheckBoxes(dices_checkBoxes, false);
         tableModel.setColumnIdentifiers(new String[]{"Type", "player1", "player2"});
-        List<String> scoreTypes = Yehtzee.readFile("src/yehtzee/yeht.txt");
+        List<String> scoreTypes = Utils.readFile("src/yehtzee/yeht.txt");
         for (String scoreType : scoreTypes) {
             tableModel.addRow(new String[]{scoreType, null, null});
         }
@@ -307,6 +303,7 @@ public class Game extends javax.swing.JFrame {
         myName_label = new javax.swing.JLabel();
         rivalNameLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(780, 580));
@@ -392,7 +389,7 @@ public class Game extends javax.swing.JFrame {
         getContentPane().add(CheckBox_9, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 290, -1, -1));
 
         rival_name_label.setForeground(new java.awt.Color(0, 33, 212));
-        getContentPane().add(rival_name_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 10, 190, 20));
+        getContentPane().add(rival_name_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, 160, 20));
 
         jLabel2.setText("Name: ");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 450, -1, 25));
@@ -452,26 +449,34 @@ public class Game extends javax.swing.JFrame {
         win.setBackground(new java.awt.Color(255, 255, 255));
         win.setFont(new java.awt.Font("Arial", 2, 24)); // NOI18N
         win.setForeground(new java.awt.Color(66, 198, 18));
-        getContentPane().add(win, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 190, 180, 50));
+        getContentPane().add(win, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 160, 180, 50));
 
         rivalScoreLabel.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         rivalScoreLabel.setForeground(new java.awt.Color(210, 26, 26));
-        getContentPane().add(rivalScoreLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 290, 100, 30));
+        getContentPane().add(rivalScoreLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 270, 100, 30));
 
         myScoreLabel.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         myScoreLabel.setForeground(new java.awt.Color(61, 188, 28));
-        getContentPane().add(myScoreLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 290, 100, 30));
+        getContentPane().add(myScoreLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 270, 100, 30));
 
         myName_label.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         myName_label.setForeground(new java.awt.Color(61, 188, 28));
-        getContentPane().add(myName_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 250, 100, 30));
+        getContentPane().add(myName_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 230, 100, 30));
 
         rivalNameLabel.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         rivalNameLabel.setForeground(new java.awt.Color(210, 26, 26));
-        getContentPane().add(rivalNameLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 250, 100, 30));
+        getContentPane().add(rivalNameLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 230, 100, 30));
 
         jLabel1.setText("Rival Name:");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 10, 70, 20));
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, 70, 20));
+
+        jButton1.setText("replay");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 500, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -573,6 +578,7 @@ public class Game extends javax.swing.JFrame {
             rollCount++;
             if (rollCount == 3) {
                 rollDice_btn.setEnabled(false);
+                setVisibleCheckBoxes(dices_checkBoxes, false);
             }
         }
         clearCheckBoxSelection();
@@ -602,6 +608,11 @@ public class Game extends javax.swing.JFrame {
             startAndListenThead();
         }
     }//GEN-LAST:event_name_txt_fieldKeyTyped
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -655,6 +666,7 @@ public class Game extends javax.swing.JFrame {
     private javax.swing.JLabel dice_7;
     private javax.swing.JLabel dice_8;
     private javax.swing.JLabel dice_9;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
