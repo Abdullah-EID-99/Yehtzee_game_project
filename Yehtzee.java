@@ -5,16 +5,9 @@
  */
 package Yehtzee_game_project;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 /**
@@ -211,7 +204,7 @@ public class Yehtzee {
         for (int i = 0; i < dices.length; i++) {
             dices[i] = rn.nextInt(6) + 1;
         }
-        loadIconToLabel(dices_labeles, dices);
+        Utils.loadIconsToLabels(dices_labeles, dices);
         return dices;
     }
 
@@ -235,21 +228,7 @@ public class Yehtzee {
 //            System.out.println(temp.get(i) + ": " + temp_scores[i]);
 //        }
 //    }
-    public static void loadIconToLabel(JLabel[] dices_labeles, int dices[]) {
-        Random rn = new Random();
-        for (int q = 0; q < dices_labeles.length; q++) {
-            BufferedImage img = null;
-            try {
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + dices[q] + ".png"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Image dimg = img.getScaledInstance(dices_labeles[q].getWidth(), dices_labeles[q].getHeight(),
-                    Image.SCALE_SMOOTH);
-            ImageIcon icon = new ImageIcon(dimg);
-            dices_labeles[q].setIcon(icon);
-        }
-    }
+    
 
     static void startGame() {
         for (int i = 0; i < scores.length; i++) {

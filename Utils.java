@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 
 /**
@@ -65,6 +66,84 @@ public class Utils {
             sum += arr[i];
         }
         return sum;
+    }
+
+    static void clearLabeles(JLabel labeles[]) {
+        for (int q = 0; q < labeles.length; q++) {
+            labeles[q].setIcon(null);
+        }
+    }
+
+    static int[] checkIfCheckBoxIsSelected(JCheckBox[] dices_checkBoxes) {
+        int[] indexes = new int[dices_checkBoxes.length];
+        for (int i = 0; i < dices_checkBoxes.length; i++) {
+            if (dices_checkBoxes[i].isSelected()) {
+                indexes[i] = 1;
+            } else {
+                indexes[i] = 0;
+            }
+        }
+        return indexes;
+    }
+
+    static void checkBoxesSetVisible(JCheckBox checkBoxes[], boolean isVisible) {
+        for (int q = 0; q < checkBoxes.length; q++) {
+            checkBoxes[q].setVisible(isVisible);
+        }
+    }
+
+    static void clearCheckBoxSelection(JCheckBox[] dices_checkBoxes) {
+        for (JCheckBox checkBox : dices_checkBoxes) {
+            checkBox.setSelected(false);
+        }
+    }
+
+    public static void loadIconsToLabels(JLabel[] dices_labeles, int dices[]) {
+        for (int q = 0; q < dices_labeles.length; q++) {
+            BufferedImage img = null;
+            try {
+                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + dices[q] + ".png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Image dimg = img.getScaledInstance(dices_labeles[q].getWidth(), dices_labeles[q].getHeight(),
+                    Image.SCALE_SMOOTH);
+            ImageIcon icon = new ImageIcon(dimg);
+            dices_labeles[q].setIcon(icon);
+        }
+    }
+
+    public static void loadIconsToLabels(JLabel[] dices_labeles) {
+        for (int q = 0; q < dices_labeles.length; q++) {
+            BufferedImage img = null;
+            try {
+                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (q + 2) + ".png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Image dimg = img.getScaledInstance(dices_labeles[q].getWidth(), dices_labeles[q].getHeight(),
+                    Image.SCALE_SMOOTH);
+            ImageIcon icon = new ImageIcon(dimg);
+            dices_labeles[q].setIcon(icon);
+        }
+    }
+
+    public static JLabel[] putLabelsInArray(JLabel... labels) {
+        int size = labels.length;
+        JLabel myLabels[] = new JLabel[size];
+        for (int i = 0; i < size; i++) {
+            myLabels[i] = labels[i];
+        }
+        return myLabels;
+    }
+
+    public static JCheckBox[] putJCheckBoxesInArray(JCheckBox... checkBoxes) {
+        int size = checkBoxes.length;
+        JCheckBox myCheckBoxes[] = new JCheckBox[size];
+        for (int i = 0; i < size; i++) {
+            myCheckBoxes[i] = checkBoxes[i];
+        }
+        return myCheckBoxes;
     }
 
 }

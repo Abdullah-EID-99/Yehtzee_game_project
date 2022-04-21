@@ -8,18 +8,14 @@ package Yehtzee_game_project;
 import com.sun.glass.events.KeyEvent;
 import game.Message;
 import java.awt.Color;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -28,6 +24,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Game extends javax.swing.JFrame {
 
+    static int counterx = 0;
     int rollCount = 0;
     Client me;
     JLabel[] myLabels = new JLabel[5];
@@ -35,36 +32,6 @@ public class Game extends javax.swing.JFrame {
     JLabel[] rivalLabels = new JLabel[5];
     JCheckBox dices_checkBoxes[] = new JCheckBox[5];
     DefaultTableModel tableModel = new DefaultTableModel();
-
-    static void clearLabeles(JLabel labeles[]) {
-        for (int q = 0; q < labeles.length; q++) {
-            labeles[q].setIcon(null);
-        }
-    }
-
-    static void setVisibleCheckBoxes(JCheckBox checkBoxes[], boolean isVisible) {
-        for (int q = 0; q < checkBoxes.length; q++) {
-            checkBoxes[q].setVisible(isVisible);
-        }
-    }
-
-    void setEnable() {
-        rollDice_btn.setEnabled(true);
-        messge_txt_field.setEnabled(true);
-        send_message_btn.setEnabled(true);
-    }
-
-    int[] checkIfCheckBoxIsSelected() {
-        int[] indexes = new int[dices_checkBoxes.length];
-        for (int i = 0; i < dices_checkBoxes.length; i++) {
-            if (dices_checkBoxes[i].isSelected()) {
-                indexes[i] = 1;
-            } else {
-                indexes[i] = 0;
-            }
-        }
-        return indexes;
-    }
 
     void startAndListenThead() {
         myThread = new Thread(() -> {
@@ -112,20 +79,20 @@ public class Game extends javax.swing.JFrame {
                                     for (int i = 0; i < myLabels.length; i++) {
                                         myLabels[i].setIcon(middle_labeles[i].getIcon());
                                     }
-                                    clearLabeles(middle_labeles);
+                                    Utils.clearLabeles(middle_labeles);
                                 }
                                 rollDice_btn.setEnabled(true);
                             } else {
                                 for (int i = 0; i < rivalLabels.length; i++) {
                                     rivalLabels[i].setIcon(myLabels[i].getIcon());
                                 }
-                                clearLabeles(myLabels);
+                                Utils.clearLabeles(myLabels);
                             }
                             break;
                         case dices:
                             int dices[] = (int[]) received.content;
-                            clearLabeles(rivalLabels);
-                            Yehtzee.loadIconToLabel(middle_labeles, dices);
+                            Utils.clearLabeles(rivalLabels);
+                            Utils.loadIconsToLabels(middle_labeles, dices);
                             break;
                         case counter:
                             counterx = (int) received.content;
@@ -133,7 +100,7 @@ public class Game extends javax.swing.JFrame {
                             if (counterx == 26) {
                                 int totalScores = Yehtzee.totalScores();
                                 me.Send(totalScores, Message.Message_Type.finish_1);
-                                clearLabeles(middle_labeles);
+                                Utils.clearLabeles(middle_labeles);
                             }
                             break;
                         case finish_1:
@@ -143,7 +110,7 @@ public class Game extends javax.swing.JFrame {
                             rivalScore = (int) received.content;
                             tableModel.setValueAt(rivalScore, 13, 2);
                             tableModel.setValueAt(myScore, 13, 1);
-                            clearLabeles(rivalLabels);
+                            Utils.clearLabeles(rivalLabels);
 
                             break;
                         case finish_2:
@@ -195,44 +162,34 @@ public class Game extends javax.swing.JFrame {
         myThread.start();
     }
 
-    void clearCheckBoxSelection() {
-        for (JCheckBox checkBox : dices_checkBoxes) {
-            checkBox.setSelected(false);
-        }
-    }
-
-    int arraySum(int[] arr) {
-        int sum = 0;
-        for (int i = 0; i < arr.length; i++) {
-            sum += arr[i];
-        }
-        return sum;
-    }
-
     public Game() {
         initComponents();
         Yehtzee.startGame();
-        myLabels[0] = dice_1;
-        myLabels[1] = dice_2;
-        myLabels[2] = dice_3;
-        myLabels[3] = dice_4;
-        myLabels[4] = dice_5;
-        rivalLabels[0] = rival_dice_1;
-        rivalLabels[1] = rival_dice_2;
-        rivalLabels[2] = rival_dice_3;
-        rivalLabels[3] = rival_dice_4;
-        rivalLabels[4] = rival_dice_5;
-        middle_labeles[0] = dice_6;
-        middle_labeles[1] = dice_7;
-        middle_labeles[2] = dice_8;
-        middle_labeles[3] = dice_9;
-        middle_labeles[4] = dice_10;
-        dices_checkBoxes[0] = CheckBox_6;
-        dices_checkBoxes[1] = CheckBox_7;
-        dices_checkBoxes[2] = CheckBox_8;
-        dices_checkBoxes[3] = CheckBox_9;
-        dices_checkBoxes[4] = CheckBox_10;
-        setVisibleCheckBoxes(dices_checkBoxes, false);
+        myLabels = Utils.putLabelsInArray(dice_1, dice_2, dice_3, dice_4, dice_5);
+        rivalLabels = Utils.putLabelsInArray(rival_dice_1, rival_dice_2, rival_dice_3, rival_dice_4, rival_dice_5);
+        middle_labeles = Utils.putLabelsInArray(dice_6, dice_7, dice_8, dice_9, dice_10);
+//        myLabels[0] = dice_1;
+//        myLabels[1] = dice_2;
+//        myLabels[2] = dice_3;
+//        myLabels[3] = dice_4;
+//        myLabels[4] = dice_5;
+//        rivalLabels[0] = rival_dice_1;
+//        rivalLabels[1] = rival_dice_2;
+//        rivalLabels[2] = rival_dice_3;
+//        rivalLabels[3] = rival_dice_4;
+//        rivalLabels[4] = rival_dice_5;
+//        middle_labeles[0] = dice_6;
+//        middle_labeles[1] = dice_7;
+//        middle_labeles[2] = dice_8;
+//        middle_labeles[3] = dice_9;
+//        middle_labeles[4] = dice_10;
+        dices_checkBoxes = Utils.putJCheckBoxesInArray(CheckBox_6, CheckBox_7, CheckBox_8, CheckBox_9, CheckBox_10);
+//        dices_checkBoxes[0] = CheckBox_6;
+//        dices_checkBoxes[1] = CheckBox_7;
+//        dices_checkBoxes[2] = CheckBox_8;
+//        dices_checkBoxes[3] = CheckBox_9;
+//        dices_checkBoxes[4] = CheckBox_10;
+        Utils.checkBoxesSetVisible(dices_checkBoxes, false);
         tableModel.setColumnIdentifiers(new String[]{"Type", "player1", "player2"});
         List<String> scoreTypes = Utils.readFile("src/yehtzee/yeht.txt");
         for (String scoreType : scoreTypes) {
@@ -240,20 +197,8 @@ public class Game extends javax.swing.JFrame {
         }
         scoreTable.setRowHeight(20);
         scoreTable.setModel(tableModel);
-        Random rn = new Random();
-        for (int q = 0; q < myLabels.length; q++) {
-            BufferedImage img = null;
-            try {
-                //img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (rn.nextInt(6) + 1) + ".png"));
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (q + 2) + ".png"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Image dimg = img.getScaledInstance(dice_5.getWidth(), dice_5.getHeight(),
-                    Image.SCALE_SMOOTH);
-            ImageIcon icon = new ImageIcon(dimg);
-            myLabels[q].setIcon(icon);
-        }
+
+        Utils.loadIconsToLabels(myLabels);
 
     }
 
@@ -493,7 +438,7 @@ public class Game extends javax.swing.JFrame {
         myThread.stop();
         me.Stop();
     }//GEN-LAST:event_formWindowClosing
-    static int counterx = 0;
+
     private void start_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_btnActionPerformed
         startAndListenThead();
     }//GEN-LAST:event_start_btnActionPerformed
@@ -524,8 +469,8 @@ public class Game extends javax.swing.JFrame {
             for (int i = 0; i < rivalLabels.length; i++) {
                 rivalLabels[i].setIcon(middle_labeles[i].getIcon());
             }
-            clearLabeles(middle_labeles);
-            setVisibleCheckBoxes(dices_checkBoxes, false);
+            Utils.clearLabeles(middle_labeles);
+            Utils.checkBoxesSetVisible(dices_checkBoxes, false);
             rollDice_btn.setEnabled(false);
             if (counterx < 26) {
 
@@ -540,13 +485,13 @@ public class Game extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (rollCount == 0) {
             scoreTable.setEnabled(true);
-            setVisibleCheckBoxes(dices_checkBoxes, true);
-            clearLabeles(myLabels);
+            Utils.checkBoxesSetVisible(dices_checkBoxes, true);
+            Utils.clearLabeles(myLabels);
         }
         if (rollCount <= 2) {
             int[] dices = new int[5];
-            int[] selectedItems = checkIfCheckBoxIsSelected();
-            int selectedCount = arraySum(selectedItems);
+            int[] selectedItems = Utils.checkIfCheckBoxIsSelected(dices_checkBoxes);
+            int selectedCount = Utils.sumOfArray(selectedItems);
             System.out.println("selectedCount " + selectedCount);
             if (selectedCount == 0) {
                 dices = Yehtzee.rollDice(middle_labeles);
@@ -558,7 +503,7 @@ public class Game extends javax.swing.JFrame {
                         dices[i] = temp[i];
                     }
                 }
-                Yehtzee.loadIconToLabel(middle_labeles, dices);
+                Utils.loadIconsToLabels(middle_labeles, dices);
             }
             temp = dices.clone();
             me.Send(dices, Message.Message_Type.dices);
@@ -578,10 +523,10 @@ public class Game extends javax.swing.JFrame {
             rollCount++;
             if (rollCount == 3) {
                 rollDice_btn.setEnabled(false);
-                setVisibleCheckBoxes(dices_checkBoxes, false);
+                Utils.checkBoxesSetVisible(dices_checkBoxes, false);
             }
         }
-        clearCheckBoxSelection();
+        Utils.clearCheckBoxSelection(dices_checkBoxes);
 
     }//GEN-LAST:event_rollDice_btnActionPerformed
 
@@ -604,14 +549,14 @@ public class Game extends javax.swing.JFrame {
     static int myScore;
     private void name_txt_fieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_name_txt_fieldKeyTyped
         // TODO add your handling code here:
-        if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyChar() == KeyEvent.VK_ENTER && start_btn.isEnabled()) {
             startAndListenThead();
         }
     }//GEN-LAST:event_name_txt_fieldKeyTyped
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
