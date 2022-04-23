@@ -146,4 +146,16 @@ public class Utils {
         return myCheckBoxes;
     }
 
+    public static void clearArray(int[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = 0;
+        }
+    }
+
+    public static void changeLabelsIcons(JLabel[] source, JLabel[] Destination) {
+        for (int i = 0; i < source.length; i++) {
+            Destination[i].setIcon(source[i].getIcon());
+        }
+    }
+
 }

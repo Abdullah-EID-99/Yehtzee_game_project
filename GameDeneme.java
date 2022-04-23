@@ -10,24 +10,23 @@ import game.Message;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author Dell
  */
-public class Game extends javax.swing.JFrame {
+public class GameDeneme extends javax.swing.JFrame {
 
     static int counterx = 0;
     int rollCount = 0;
     Client me;
+    YehtzeeGame myGame;
     JLabel[] myLabels = new JLabel[5];
     JLabel[] middle_labeles = new JLabel[5];
     JLabel[] rivalLabels = new JLabel[5];
@@ -69,11 +68,12 @@ public class Game extends javax.swing.JFrame {
                             Text_area_recieved_message.append(me.myRivalName + ": " + d + "\n");
                             break;
                         case SelectedScore:
-                            Integer rivalSelectedScore[] = (Integer[]) received.content;
+                            int rivalSelectedScore[] = (int[]) received.content;
                             System.out.println("score " + rivalSelectedScore[1]);
                             tableModel.setValueAt(rivalSelectedScore[1], rivalSelectedScore[0], 2);
                             break;
                         case start:
+                            infoTextField.setVisible(true);
                             boolean start = (boolean) received.content;
                             if (start) {
                                 infoTextField.setBackground(Color.GREEN);
@@ -96,36 +96,34 @@ public class Game extends javax.swing.JFrame {
                             }
                             break;
                         case dices:
-                            int dices[] = (int[]) received.content;
+                            int arr[] = (int[]) received.content;
                             Utils.clearLabeles(rivalLabels);
-                            Utils.loadIconsToLabels(middle_labeles, dices);
+                            Utils.loadIconsToLabels(middle_labeles, arr);
                             break;
                         case counter:
                             counterx = (int) received.content;
                             Text_area_recieved_message.setText("" + counterx);
                             if (counterx == 26) {
-                                int totalScores = Yehtzee.totalScores();
-                                me.Send(totalScores, Message.Message_Type.finish_1);
+                                me.Send(myGame.getTotalScores(), Message.Message_Type.finish_1);
                                 Utils.clearLabeles(middle_labeles);
                             }
                             break;
                         case finish_1:
                             rollDice_btn.setEnabled(false);
-                            myScore = Yehtzee.totalScores();
-                            me.Send(myScore, Message.Message_Type.finish_2);
+                            me.Send(myGame.getTotalScores(), Message.Message_Type.finish_2);
                             rivalScore = (int) received.content;
                             tableModel.setValueAt(rivalScore, 13, 2);
-                            tableModel.setValueAt(myScore, 13, 1);
+                            tableModel.setValueAt(myGame.getTotalScores(), 13, 1);
                             Utils.clearLabeles(rivalLabels);
 
                             break;
                         case finish_2:
+                            infoTextField.setVisible(false);
                             rollDice_btn.setEnabled(false);
                             rivalScore = (int) received.content;
-                            myScore = Yehtzee.totalScores();
                             tableModel.setValueAt(rivalScore, 13, 2);
-                            tableModel.setValueAt(Yehtzee.totalScores(), 13, 1);
-                            boolean whoWin1 = myScore > rivalScore;
+                            tableModel.setValueAt(myGame.getTotalScores(), 13, 1);
+                            boolean whoWin1 = myGame.getTotalScores() > rivalScore;
                             me.Send(whoWin1, Message.Message_Type.end);
                             if (whoWin1) {
                                 win.setText("You won :)");
@@ -135,11 +133,12 @@ public class Game extends javax.swing.JFrame {
                             }
                             myName_label.setText(me.myName);
                             rivalNameLabel.setText(me.myRivalName);
-                            myScoreLabel.setText(myScore + "");
+                            myScoreLabel.setText(myGame.getTotalScores() + "");
                             rivalScoreLabel.setText(rivalScore + "");
-                            replay_btn.setEnabled(true);
+                            replay_btn.setVisible(true);
                             break;
                         case end:
+                            infoTextField.setVisible(false);
                             boolean whoWin2 = (boolean) received.content;
                             if (!whoWin2) {
                                 win.setText("You won :)");
@@ -149,17 +148,18 @@ public class Game extends javax.swing.JFrame {
                             }
                             myName_label.setText(me.myName);
                             rivalNameLabel.setText(me.myRivalName);
-                            myScoreLabel.setText(myScore + "");
+                            myScoreLabel.setText(myGame.getTotalScores() + "");
                             rivalScoreLabel.setText(rivalScore + "");
-                            replay_btn.setEnabled(true);
+                            replay_btn.setVisible(true);
                             break;
                         case replay:
                             if (JOptionPane.showConfirmDialog(this, me.myRivalName + " want to replay, do you want?") == JOptionPane.OK_OPTION) {
                                 clearScoreLabels();
                                 ClearModel();
-                                Yehtzee.startGame();
+                                myGame = new YehtzeeGame(middle_labeles);
                                 me.Send(true, Message.Message_Type.acceptReplay);
                                 Utils.loadIconsToLabels(rivalLabels);
+                                replay_btn.setVisible(false);
                             } else {
                                 me.Send(false, Message.Message_Type.acceptReplay);
                             }
@@ -169,12 +169,13 @@ public class Game extends javax.swing.JFrame {
                             if (accept) {
                                 clearScoreLabels();
                                 ClearModel();
-                                Yehtzee.startGame();
+                                myGame = new YehtzeeGame(middle_labeles);
                                 Utils.loadIconsToLabels(myLabels);
                                 rollDice_btn.setEnabled(true);
+                                replay_btn.setVisible(false);
 
                             } else {
-                                JOptionPane.showMessageDialog(this, me.myRivalName + " do not accept your requisition!");
+                                JOptionPane.showMessageDialog(this, me.myRivalName + " do not accept your requstion!");
                             }
                             break;
 
@@ -211,33 +212,17 @@ public class Game extends javax.swing.JFrame {
         }
     }
 
-    public Game() {
+    public GameDeneme() {
         initComponents();
-        Yehtzee.startGame();
+        replay_btn.setVisible(false);
+        infoTextField.setVisible(false);
         myLabels = Utils.putLabelsInArray(dice_1, dice_2, dice_3, dice_4, dice_5);
         rivalLabels = Utils.putLabelsInArray(rival_dice_1, rival_dice_2, rival_dice_3, rival_dice_4, rival_dice_5);
         middle_labeles = Utils.putLabelsInArray(dice_6, dice_7, dice_8, dice_9, dice_10);
-//        myLabels[0] = dice_1;
-//        myLabels[1] = dice_2;
-//        myLabels[2] = dice_3;
-//        myLabels[3] = dice_4;
-//        myLabels[4] = dice_5;
-//        rivalLabels[0] = rival_dice_1;
-//        rivalLabels[1] = rival_dice_2;
-//        rivalLabels[2] = rival_dice_3;
-//        rivalLabels[3] = rival_dice_4;
-//        rivalLabels[4] = rival_dice_5;
-//        middle_labeles[0] = dice_6;
-//        middle_labeles[1] = dice_7;
-//        middle_labeles[2] = dice_8;
-//        middle_labeles[3] = dice_9;
-//        middle_labeles[4] = dice_10;
         dices_checkBoxes = Utils.putJCheckBoxesInArray(CheckBox_6, CheckBox_7, CheckBox_8, CheckBox_9, CheckBox_10);
-//        dices_checkBoxes[0] = CheckBox_6;
-//        dices_checkBoxes[1] = CheckBox_7;
-//        dices_checkBoxes[2] = CheckBox_8;
-//        dices_checkBoxes[3] = CheckBox_9;
-//        dices_checkBoxes[4] = CheckBox_10;
+
+        myGame = new YehtzeeGame(middle_labeles);
+
         Utils.checkBoxesSetVisible(dices_checkBoxes, false);
         tableModel.setColumnIdentifiers(new String[]{"", "player1", "player2"});
         List<String> scoreTypes = Utils.readFile("src/yehtzee/yeht.txt");
@@ -353,7 +338,7 @@ public class Game extends javax.swing.JFrame {
                 rollDice_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(rollDice_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 430, -1, -1));
+        getContentPane().add(rollDice_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 435, 120, 40));
 
         dice_1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
         getContentPane().add(dice_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 370, 58, 55));
@@ -465,19 +450,18 @@ public class Game extends javax.swing.JFrame {
         jLabel1.setText("Rival Name:");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, 70, 20));
 
-        replay_btn.setText("replay");
-        replay_btn.setEnabled(false);
+        replay_btn.setText("Suggest Rematch");
         replay_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 replay_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(replay_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 500, -1, -1));
+        getContentPane().add(replay_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 350, 180, -1));
 
         infoTextField.setEditable(false);
-        infoTextField.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        infoTextField.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         infoTextField.setForeground(new java.awt.Color(255, 255, 255));
-        getContentPane().add(infoTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, 330, 40));
+        getContentPane().add(infoTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 380, 40));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -504,87 +488,48 @@ public class Game extends javax.swing.JFrame {
         scoreTable.setColumnSelectionAllowed(true);
         int row = scoreTable.getSelectedRow();
         int column = scoreTable.getSelectedColumn();
-        if (row != -1 && column == 1 && Yehtzee.scores[row] == -1) {
-            //if (JOptionPane.showConfirmDialog(this, "are you sure you want this score?") == JOptionPane.OK_OPTION) {
-            tableModel.setValueAt(Yehtzee.temp_scores[row], row, 1);
-            Yehtzee.scores[row] = Yehtzee.temp_scores[row];
-            Integer score[] = new Integer[2];
-            score[0] = row;
-            score[1] = Yehtzee.temp_scores[row];
-            me.Send(score, Message.Message_Type.SelectedScore);
-            counterx++;
-            me.Send(counterx, Message.Message_Type.counter);
-            rollDice_btn.setEnabled(false);
-            scoreTable.setEnabled(false);
-            scoreTable.clearSelection();
-            for (int i = 0; i < Yehtzee.scores.length; i++) {
-                if (Yehtzee.scores[i] == -1) {
-                    tableModel.setValueAt("", i, 1);
-                }
-            }
-            for (int i = 0; i < rivalLabels.length; i++) {
-                rivalLabels[i].setIcon(middle_labeles[i].getIcon());
-            }
-            Utils.clearLabeles(middle_labeles);
-            Utils.checkBoxesSetVisible(dices_checkBoxes, false);
-            rollDice_btn.setEnabled(false);
-            if (counterx < 26) {
+        if (row != -1 && column == 1 && row < 13) {
+            if (myGame.scores[row] == -1) {
+                //if (JOptionPane.showConfirmDialog(this, "are you sure you want this score?") == JOptionPane.OK_OPTION) {
+                myGame.writeScoreToTheModel(tableModel, row);
+                me.Send(new int[]{row, myGame.temp_scores[row]}, Message.Message_Type.SelectedScore);
+                rollDice_btn.setEnabled(false);
+                scoreTable.setEnabled(false);
+                scoreTable.clearSelection();
+                Utils.changeLabelsIcons(middle_labeles, rivalLabels);
+                Utils.clearLabeles(middle_labeles);
+                Utils.checkBoxesSetVisible(dices_checkBoxes, false);
+                Utils.clearCheckBoxSelection(dices_checkBoxes);
 
-                me.Send(true, Message.Message_Type.start);
-                infoTextField.setBackground(Color.RED);
-                infoTextField.setText(me.myRivalName + "'s turn!");
+                counterx++;
+                me.Send(counterx, Message.Message_Type.counter);
+                if (counterx < 26) {
+                    me.Send(true, Message.Message_Type.start);
+                    infoTextField.setBackground(Color.RED);
+                    infoTextField.setText(me.myRivalName + "'s turn!");
+                }
+                rollCount = 0;
+                //}
             }
-            rollCount = 0;
-            //}
         }
     }//GEN-LAST:event_scoreTableMousePressed
-    static int temp[];
+
     private void rollDice_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rollDice_btnActionPerformed
         // TODO add your handling code here:
 
-//        if (rollCount == 0) {
-//            scoreTable.setEnabled(true);
-//            Utils.checkBoxesSetVisible(dices_checkBoxes, true);
-//            Utils.clearLabeles(myLabels);
-//        }
         if (rollCount <= 2) {
-//            int[] dices = new int[5];
             int[] selectedItems = Utils.checkIfCheckBoxIsSelected(dices_checkBoxes);
             int selectedCount = Utils.sumOfArray(selectedItems);
             System.out.println("selectedCount " + selectedCount);
             if (selectedCount == 0) {
-                temp = Yehtzee.rollDice(middle_labeles);
+                myGame.rollDice();
 
             } else {
-                temp = Yehtzee.rollDice(middle_labeles, temp, selectedItems);
-//                dices = Yehtzee.rollDice(middle_labeles);
-//                for (int i = 0; i < selectedItems.length; i++) {
-//                    if (selectedItems[i] == 0) {
-//                        dices[i] = temp[i];
-//                    }
-//                }
-//                Utils.loadIconsToLabels(middle_labeles, dices);
+                myGame.rollSpecificDices(selectedItems);
             }
-//            temp = dices.clone();
-            me.Send(temp, Message.Message_Type.dices);
-            Yehtzee.calculateScores(temp);
-
-//            for (int i = 0; i < Yehtzee.temp_scores.length; i++) {
-//                if (Yehtzee.scores[i] == -1) {
-//                    if (Yehtzee.temp_scores[i] / 10 == 0) {
-//                        tableModel.setValueAt("(" + Yehtzee.temp_scores[i] + ")", i, 1);
-//                    } else {
-//                        tableModel.setValueAt("(" + Yehtzee.temp_scores[i] + ")", i, 1);
-//                    }
-//
-//                }
-//            }
-            Yehtzee.writeTempScoresToTableModel(tableModel);
-//            rollCount++;
-//            if (rollCount == 3) {
-//                rollDice_btn.setEnabled(false);
-//                Utils.checkBoxesSetVisible(dices_checkBoxes, false);
-//            }
+            me.Send(myGame.getDices(), Message.Message_Type.dices);
+            myGame.calculateScores();
+            myGame.writeTempScoresToTableModel(tableModel);
         }
         switch (rollCount) {
             case 0:
@@ -602,10 +547,11 @@ public class Game extends javax.swing.JFrame {
                 rollDice_btn.setEnabled(false);
                 Utils.checkBoxesSetVisible(dices_checkBoxes, false);
                 infoTextField.setText("Select your move by clicking a cell on the scorecard.");
+                Utils.clearCheckBoxSelection(dices_checkBoxes);
                 break;
 
         }
-        Utils.clearCheckBoxSelection(dices_checkBoxes);
+
 
     }//GEN-LAST:event_rollDice_btnActionPerformed
 
@@ -656,20 +602,21 @@ public class Game extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GameDeneme.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GameDeneme.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GameDeneme.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GameDeneme.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Game().setVisible(true);
+                new GameDeneme().setVisible(true);
             }
         });
     }
