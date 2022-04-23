@@ -17,17 +17,26 @@ import javax.swing.table.DefaultTableModel;
  * @author Dell
  */
 public class YehtzeeGame {
+    // tabel model üzerinde puanlar yazılacak  
+    private DefaultTableModel tableModel;
+    // Labels üzerinde zar taşlar yazılacak
+    private JLabel[] Labels;
 
-    JLabel[] Labels;
-
-    public YehtzeeGame(JLabel[] middelLabels) {
+    public YehtzeeGame(DefaultTableModel tableModel, JLabel[] middleLabeles) {
+        // attığımız zar taşların numaralarını tutacak (1,2,3,4,5,6) olabilir
         this.dices = new int[5];
+        // upper section combinations 
         this.upperSectionCombinations = new int[6];
+        // lower section combinations 
         this.lowerSectionCombinations = new int[7];
+        // geçici olarak hesapladığımız puanları tutacak
         this.temp_scores = new int[13];
+        // oyuncunun kalıcı olarak seçtiği puanları tutacak
         this.scores = new int[13];
-        this.Labels = middelLabels;
+        this.Labels = middleLabeles;
+        this.tableModel = tableModel;
         for (int i = 0; i < this.scores.length; i++) {
+            // bütün puanlar en başta -1,kullancı puan seçinde değişir
             this.scores[i] = -1;
         }
     }
@@ -41,18 +50,17 @@ public class YehtzeeGame {
     private final int YAHTZEE = 6;
     private int[] upperSectionCombinations;
     private int[] lowerSectionCombinations;
-    int[] temp_scores;
-    int[] scores;
+    private int[] temp_scores;
+    private int[] scores;
     private int[] dices;
-    
-
+    // upper section combinations hesaplayan metod
     public void calculateUpperSectionCombinations() {
         Utils.clearArray(upperSectionCombinations);
         for (int i = 0; i < dices.length; i++) {
             upperSectionCombinations[dices[i] - 1]++;
         }
     }
-
+    // atılan zar taşların yehtzee olup olmadığnı döndüren metod
     public boolean isYehtzee() {
         int x = dices[0];
         for (int i = 1; i < dices.length; i++) {
@@ -62,7 +70,7 @@ public class YehtzeeGame {
         }
         return true;
     }
-
+    // atılan zar taşların FullHouse olup olmadığnı döndüren metod
     public boolean isFullHouse() {
         int x = dices[0];
         int y = -1;
@@ -87,7 +95,7 @@ public class YehtzeeGame {
         }
         return false;
     }
-
+    // atılan zar taşların SmallStraight olup olmadığnı döndüren metod
     public boolean isSmallStraight() {
         for (int i = 0; i <= 2; i++) {
             boolean control = true;
@@ -103,7 +111,7 @@ public class YehtzeeGame {
         }
         return false;
     }
-
+    // atılan zar taşların LargeStraight olup olmadığnı döndüren metod
     public boolean isLargeStraight() {
         int newDices[] = dices.clone();
         Arrays.sort(newDices);
@@ -130,7 +138,7 @@ public class YehtzeeGame {
         }
         return false;
     }
-
+    // atılan zar taşların içinde fourOfKind olup olmadığnı döndüren metod
     public boolean fourOfKind() {
         calculateUpperSectionCombinations();
         for (int i = 0; i < upperSectionCombinations.length; i++) {
@@ -140,7 +148,7 @@ public class YehtzeeGame {
         }
         return false;
     }
-
+    // atılan zar taşların içinde threeOfKind olup olmadığnı döndüren metod
     public boolean threeOfKind() {
         calculateUpperSectionCombinations();
         for (int i = 0; i < upperSectionCombinations.length; i++) {
@@ -150,7 +158,7 @@ public class YehtzeeGame {
         }
         return false;
     }
-
+    // atılan zar taşların değerlerini toplar
     public int chance(int dices[]) {
         int sum = 0;
         for (int i = 0; i < dices.length; i++) {
@@ -158,7 +166,7 @@ public class YehtzeeGame {
         }
         return sum;
     }
-
+    // bütün puanları hesaplar
     public void calculateScores() {
         Utils.clearArray(lowerSectionCombinations);
         Utils.clearArray(temp_scores);
@@ -198,7 +206,7 @@ public class YehtzeeGame {
         temp_scores[upperSectionCombinations.length + CHANCE] = Utils.sumOfArray(dices);
 
     }
-
+    // zar taşları rastgele olarak atar
     public void rollDice() {
         Random rn = new Random();
         for (int i = 0; i < dices.length; i++) {
@@ -206,7 +214,7 @@ public class YehtzeeGame {
         }
         Utils.loadIconsToLabels(Labels, dices);
     }
-
+    // seçili zar taşları rastgele olarak atar diğerleri değiştirmez
     public void rollSpecificDices(int[] selectedItems) {
         Random rn = new Random();
         for (int i = 0; i < dices.length; i++) {
@@ -217,7 +225,6 @@ public class YehtzeeGame {
 
         Utils.loadIconsToLabels(Labels, dices);
     }
-
 
     public void printArray(int arr[]) {
         for (int i = 0; i < arr.length; i++) {
@@ -232,7 +239,18 @@ public class YehtzeeGame {
 //            System.out.println(temp.get(i) + ": " + temp_scores[i]);
 //        }
 //    }
-    int getTotalScores() {
+    // bonusları hesaplar
+    int getBonus() {
+        int sum = 0;
+        for (int i = 0; i < 6; i++) {
+            sum += scores[i];
+        }
+        int bonus = (sum >= 30) ? 35 : 0;
+        tableModel.setValueAt(bonus, 14, 1);
+        return bonus;
+    }
+    // bonusları hesaplar bonus hariç
+    int getScoresSum() {
         int sum = 0;
         for (int i = 0; i < scores.length; i++) {
             sum += scores[i];
@@ -245,8 +263,8 @@ public class YehtzeeGame {
             scores[i] = -1;
         }
     }
-
-    void writeTempScoresToTableModel(DefaultTableModel tableModel) {
+    // geçici olarak hesapladığımız puanları tabel modele yazar
+    void writeTempScoresToTableModel() {
         for (int i = 0; i < temp_scores.length; i++) {
             if (scores[i] == -1) {
                 if (temp_scores[i] / 10 == 0) {
@@ -258,13 +276,10 @@ public class YehtzeeGame {
             }
         }
     }
-
-    void writeScoreToTheModel(DefaultTableModel tableModel, int row) {
+    // oyuncunun kalıcı olarak seçtiği puanı tabel modele yazar
+    void writeScoreToTheModel(int row) {
         tableModel.setValueAt(temp_scores[row], row, 1);
         scores[row] = temp_scores[row];
-        Integer score[] = new Integer[2];
-        score[0] = row;
-        score[1] = temp_scores[row];
         for (int i = 0; i < scores.length; i++) {
             if (scores[i] == -1) {
                 tableModel.setValueAt("", i, 1);
@@ -275,5 +290,13 @@ public class YehtzeeGame {
     public int[] getDices() {
         return dices.clone();
     }
-    
+
+    public int[] getScores() {
+        return scores;
+    }
+
+    public int[] getTemp_scores() {
+        return temp_scores;
+    }
+
 }

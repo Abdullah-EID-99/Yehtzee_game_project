@@ -34,6 +34,7 @@ public class GameDeneme extends javax.swing.JFrame {
     DefaultTableModel tableModel = new DefaultTableModel();
 
     void startAndListenThead() {
+
         myThread = new Thread(() -> {
             rival_name_label.setText("waiting for rival ...");
             me = new Client();
@@ -79,19 +80,21 @@ public class GameDeneme extends javax.swing.JFrame {
                                 infoTextField.setBackground(Color.GREEN);
                                 infoTextField.setText("Your turn!");
                                 if (dice_1.getIcon() == null) {
-                                    for (int i = 0; i < myLabels.length; i++) {
-                                        myLabels[i].setIcon(middle_labeles[i].getIcon());
-                                    }
+                                    Utils.changeLabelsIcons(middle_labeles, myLabels);
+//                                    for (int i = 0; i < myLabels.length; i++) {
+//                                        myLabels[i].setIcon(middle_labeles[i].getIcon());
+//                                    }
                                     Utils.clearLabeles(middle_labeles);
                                 }
                                 rollDice_btn.setEnabled(true);
                             } else {
                                 infoTextField.setBackground(Color.RED);
                                 infoTextField.setText(me.myRivalName + "'s turn!");
+                                Utils.changeLabelsIcons(myLabels, rivalLabels);
 
-                                for (int i = 0; i < rivalLabels.length; i++) {
-                                    rivalLabels[i].setIcon(myLabels[i].getIcon());
-                                }
+//                                for (int i = 0; i < rivalLabels.length; i++) {
+//                                    rivalLabels[i].setIcon(myLabels[i].getIcon());
+//                                }
                                 Utils.clearLabeles(myLabels);
                             }
                             break;
@@ -104,16 +107,22 @@ public class GameDeneme extends javax.swing.JFrame {
                             counterx = (int) received.content;
                             Text_area_recieved_message.setText("" + counterx);
                             if (counterx == 26) {
-                                me.Send(myGame.getTotalScores(), Message.Message_Type.finish_1);
+
+                                me.Send(new int[]{13, myGame.getScoresSum()}, Message.Message_Type.SelectedScore);
+                                me.Send(new int[]{14, myGame.getBonus()}, Message.Message_Type.SelectedScore);
+                                me.Send(myGame.getScoresSum() + myGame.getBonus(), Message.Message_Type.finish_1);
                                 Utils.clearLabeles(middle_labeles);
                             }
                             break;
                         case finish_1:
                             rollDice_btn.setEnabled(false);
-                            me.Send(myGame.getTotalScores(), Message.Message_Type.finish_2);
+                            me.Send(new int[]{13, myGame.getScoresSum()}, Message.Message_Type.SelectedScore);
+                            me.Send(new int[]{14, myGame.getBonus()}, Message.Message_Type.SelectedScore);
+                            me.Send(myGame.getScoresSum() + myGame.getBonus(), Message.Message_Type.finish_2);
                             rivalScore = (int) received.content;
-                            tableModel.setValueAt(rivalScore, 13, 2);
-                            tableModel.setValueAt(myGame.getTotalScores(), 13, 1);
+                            tableModel.setValueAt(rivalScore, 15, 2);
+                            tableModel.setValueAt(myGame.getScoresSum(), 13, 1);
+                            tableModel.setValueAt(myGame.getScoresSum() + myGame.getBonus(), 15, 1);
                             Utils.clearLabeles(rivalLabels);
 
                             break;
@@ -121,9 +130,10 @@ public class GameDeneme extends javax.swing.JFrame {
                             infoTextField.setVisible(false);
                             rollDice_btn.setEnabled(false);
                             rivalScore = (int) received.content;
-                            tableModel.setValueAt(rivalScore, 13, 2);
-                            tableModel.setValueAt(myGame.getTotalScores(), 13, 1);
-                            boolean whoWin1 = myGame.getTotalScores() > rivalScore;
+                            tableModel.setValueAt(rivalScore, 15, 2);
+                            tableModel.setValueAt(myGame.getScoresSum(), 13, 1);
+                            tableModel.setValueAt(myGame.getScoresSum() + myGame.getBonus(), 15, 1);
+                            boolean whoWin1 = myGame.getScoresSum() + myGame.getBonus() > rivalScore;
                             me.Send(whoWin1, Message.Message_Type.end);
                             if (whoWin1) {
                                 win.setText("You won :)");
@@ -133,7 +143,7 @@ public class GameDeneme extends javax.swing.JFrame {
                             }
                             myName_label.setText(me.myName);
                             rivalNameLabel.setText(me.myRivalName);
-                            myScoreLabel.setText(myGame.getTotalScores() + "");
+                            myScoreLabel.setText(myGame.getScoresSum() + myGame.getBonus() + "");
                             rivalScoreLabel.setText(rivalScore + "");
                             replay_btn.setVisible(true);
                             break;
@@ -148,15 +158,19 @@ public class GameDeneme extends javax.swing.JFrame {
                             }
                             myName_label.setText(me.myName);
                             rivalNameLabel.setText(me.myRivalName);
-                            myScoreLabel.setText(myGame.getTotalScores() + "");
+                            myScoreLabel.setText(myGame.getScoresSum() + myGame.getBonus() + "");
                             rivalScoreLabel.setText(rivalScore + "");
                             replay_btn.setVisible(true);
                             break;
                         case replay:
                             if (JOptionPane.showConfirmDialog(this, me.myRivalName + " want to replay, do you want?") == JOptionPane.OK_OPTION) {
+                                infoTextField.setVisible(true);
+                                infoTextField.setBackground(Color.RED);
+                                infoTextField.setText(me.myRivalName + "'s turn!");
+                                //me.Send(true, Message.Message_Type.start);//***
                                 clearScoreLabels();
                                 ClearModel();
-                                myGame = new YehtzeeGame(middle_labeles);
+                                myGame = new YehtzeeGame(tableModel, middle_labeles);
                                 me.Send(true, Message.Message_Type.acceptReplay);
                                 Utils.loadIconsToLabels(rivalLabels);
                                 replay_btn.setVisible(false);
@@ -167,9 +181,13 @@ public class GameDeneme extends javax.swing.JFrame {
                         case acceptReplay:
                             boolean accept = (boolean) received.content;
                             if (accept) {
+                                infoTextField.setVisible(true);
+                                infoTextField.setBackground(Color.GREEN);
+                                infoTextField.setText("Your turn!");
+                                //me.Send(false, Message.Message_Type.start);//***
                                 clearScoreLabels();
                                 ClearModel();
-                                myGame = new YehtzeeGame(middle_labeles);
+                                myGame = new YehtzeeGame(tableModel, middle_labeles);
                                 Utils.loadIconsToLabels(myLabels);
                                 rollDice_btn.setEnabled(true);
                                 replay_btn.setVisible(false);
@@ -199,7 +217,7 @@ public class GameDeneme extends javax.swing.JFrame {
     void ClearModel() {
         counterx = 0;
         tableModel.setRowCount(0);
-        List<String> scoreTypes = Utils.readFile("src/yehtzee/yeht.txt");
+        List<String> scoreTypes = Utils.readFile("src/Yehtzee_game_project/yeht.txt");
         for (String scoreType : scoreTypes) {
             tableModel.addRow(new String[]{scoreType, null, null});
         }
@@ -212,6 +230,12 @@ public class GameDeneme extends javax.swing.JFrame {
         }
     }
 
+    void senMessage() {
+        me.Send(messge_txt_field.getText(), Message.Message_Type.Text);
+        Text_area_recieved_message.append("You: " + messge_txt_field.getText() + "\n");
+        messge_txt_field.setText("");
+    }
+
     public GameDeneme() {
         initComponents();
         replay_btn.setVisible(false);
@@ -221,11 +245,11 @@ public class GameDeneme extends javax.swing.JFrame {
         middle_labeles = Utils.putLabelsInArray(dice_6, dice_7, dice_8, dice_9, dice_10);
         dices_checkBoxes = Utils.putJCheckBoxesInArray(CheckBox_6, CheckBox_7, CheckBox_8, CheckBox_9, CheckBox_10);
 
-        myGame = new YehtzeeGame(middle_labeles);
+        myGame = new YehtzeeGame(tableModel, middle_labeles);
 
         Utils.checkBoxesSetVisible(dices_checkBoxes, false);
         tableModel.setColumnIdentifiers(new String[]{"", "player1", "player2"});
-        List<String> scoreTypes = Utils.readFile("src/yehtzee/yeht.txt");
+        List<String> scoreTypes = Utils.readFile("src/Yehtzee_game_project/yeht.txt");
         for (String scoreType : scoreTypes) {
             tableModel.addRow(new String[]{scoreType, null, null});
         }
@@ -295,6 +319,7 @@ public class GameDeneme extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         scoreTable.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        scoreTable.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         scoreTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
@@ -329,7 +354,7 @@ public class GameDeneme extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(scoreTable);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, 314, 310));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, 330, 350));
 
         rollDice_btn.setText("Roll Dice");
         rollDice_btn.setEnabled(false);
@@ -338,25 +363,25 @@ public class GameDeneme extends javax.swing.JFrame {
                 rollDice_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(rollDice_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 435, 120, 40));
+        getContentPane().add(rollDice_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 460, 120, 40));
 
         dice_1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        getContentPane().add(dice_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 370, 58, 55));
+        getContentPane().add(dice_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 390, 58, 55));
 
         dice_2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        getContentPane().add(dice_2, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 370, 58, 55));
+        getContentPane().add(dice_2, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 390, 58, 55));
 
         dice_4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        getContentPane().add(dice_4, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 370, 58, 55));
+        getContentPane().add(dice_4, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 390, 58, 55));
 
         dice_5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
-        getContentPane().add(dice_5, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 370, 58, 55));
+        getContentPane().add(dice_5, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 390, 58, 55));
 
         dice_3.setBackground(new java.awt.Color(255, 255, 255));
         dice_3.setForeground(new java.awt.Color(255, 255, 255));
         dice_3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/yehtzee/die-face.png"))); // NOI18N
         dice_3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        getContentPane().add(dice_3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 370, 58, 55));
+        getContentPane().add(dice_3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 390, 58, 55));
         getContentPane().add(dice_6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 58, 55));
         getContentPane().add(dice_7, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 170, 58, 55));
         getContentPane().add(dice_8, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 170, 58, 55));
@@ -372,7 +397,7 @@ public class GameDeneme extends javax.swing.JFrame {
         getContentPane().add(rival_name_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, 160, 20));
 
         jLabel2.setText("Name: ");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 480, -1, 25));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 500, -1, 25));
 
         name_txt_field.setForeground(new java.awt.Color(0, 216, 43));
         name_txt_field.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -380,7 +405,7 @@ public class GameDeneme extends javax.swing.JFrame {
                 name_txt_fieldKeyTyped(evt);
             }
         });
-        getContentPane().add(name_txt_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 480, 157, -1));
+        getContentPane().add(name_txt_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 500, 157, -1));
 
         start_btn.setText("Start");
         start_btn.addActionListener(new java.awt.event.ActionListener() {
@@ -388,7 +413,7 @@ public class GameDeneme extends javax.swing.JFrame {
                 start_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(start_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 480, -1, -1));
+        getContentPane().add(start_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 500, -1, -1));
 
         send_message_btn.setText("send ");
         send_message_btn.setEnabled(false);
@@ -397,7 +422,7 @@ public class GameDeneme extends javax.swing.JFrame {
                 send_message_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(send_message_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 460, 70, -1));
+        getContentPane().add(send_message_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 500, 80, -1));
 
         messge_txt_field.setEnabled(false);
         messge_txt_field.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -405,7 +430,7 @@ public class GameDeneme extends javax.swing.JFrame {
                 messge_txt_fieldKeyTyped(evt);
             }
         });
-        getContentPane().add(messge_txt_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 460, 240, -1));
+        getContentPane().add(messge_txt_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 500, 250, -1));
 
         rival_dice_1.setBackground(new java.awt.Color(255, 255, 255));
         rival_dice_1.setForeground(new java.awt.Color(255, 255, 255));
@@ -424,7 +449,7 @@ public class GameDeneme extends javax.swing.JFrame {
         Text_area_recieved_message.setRows(5);
         jScrollPane2.setViewportView(Text_area_recieved_message);
 
-        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 330, 320, 120));
+        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 370, 330, 120));
 
         win.setBackground(new java.awt.Color(255, 255, 255));
         win.setFont(new java.awt.Font("Arial", 2, 24)); // NOI18N
@@ -456,10 +481,10 @@ public class GameDeneme extends javax.swing.JFrame {
                 replay_btnActionPerformed(evt);
             }
         });
-        getContentPane().add(replay_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 350, 180, -1));
+        getContentPane().add(replay_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 370, 180, -1));
 
         infoTextField.setEditable(false);
-        infoTextField.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        infoTextField.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
         infoTextField.setForeground(new java.awt.Color(255, 255, 255));
         getContentPane().add(infoTextField, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 380, 40));
 
@@ -474,9 +499,11 @@ public class GameDeneme extends javax.swing.JFrame {
     static Thread myThread;
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
-        me.Send(null, Message.Message_Type.Disconnect);
-        myThread.stop();
-        me.Stop();
+        if (me != null) {
+            me.Send(null, Message.Message_Type.Disconnect);
+            myThread.stop();
+            me.Stop();
+        }
     }//GEN-LAST:event_formWindowClosing
 
     private void start_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_btnActionPerformed
@@ -489,10 +516,10 @@ public class GameDeneme extends javax.swing.JFrame {
         int row = scoreTable.getSelectedRow();
         int column = scoreTable.getSelectedColumn();
         if (row != -1 && column == 1 && row < 13) {
-            if (myGame.scores[row] == -1) {
+            if (myGame.getScores()[row] == -1) {
                 //if (JOptionPane.showConfirmDialog(this, "are you sure you want this score?") == JOptionPane.OK_OPTION) {
-                myGame.writeScoreToTheModel(tableModel, row);
-                me.Send(new int[]{row, myGame.temp_scores[row]}, Message.Message_Type.SelectedScore);
+                myGame.writeScoreToTheModel(row);
+                me.Send(new int[]{row, myGame.getTemp_scores()[row]}, Message.Message_Type.SelectedScore);
                 rollDice_btn.setEnabled(false);
                 scoreTable.setEnabled(false);
                 scoreTable.clearSelection();
@@ -529,7 +556,7 @@ public class GameDeneme extends javax.swing.JFrame {
             }
             me.Send(myGame.getDices(), Message.Message_Type.dices);
             myGame.calculateScores();
-            myGame.writeTempScoresToTableModel(tableModel);
+            myGame.writeTempScoresToTableModel();
         }
         switch (rollCount) {
             case 0:
@@ -557,17 +584,13 @@ public class GameDeneme extends javax.swing.JFrame {
 
     private void send_message_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_send_message_btnActionPerformed
         // TODO add your handling code here:
-        me.Send(messge_txt_field.getText(), Message.Message_Type.Text);
-        Text_area_recieved_message.append(me.myName + ": " + messge_txt_field.getText() + "\n");
-        messge_txt_field.setText("");
+        senMessage();
     }//GEN-LAST:event_send_message_btnActionPerformed
 
     private void messge_txt_fieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_messge_txt_fieldKeyTyped
         // TODO add your handling code here:
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
-            me.Send(messge_txt_field.getText(), Message.Message_Type.Text);
-            Text_area_recieved_message.append(me.myName + ": " + messge_txt_field.getText() + "\n");
-            messge_txt_field.setText("");
+            senMessage();
         }
     }//GEN-LAST:event_messge_txt_fieldKeyTyped
     static int rivalScore;

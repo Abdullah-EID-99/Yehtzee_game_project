@@ -11,4 +11,6 @@ Small Straight
 Large Straight
 Chance
 YEHTZEE
+SCORE
+BONUS
 TOTAL SCORE
