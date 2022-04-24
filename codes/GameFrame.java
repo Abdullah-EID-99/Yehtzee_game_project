@@ -105,7 +105,7 @@ public class GameFrame extends javax.swing.JFrame {
                             break;
                         case counter:
                             counterx = (int) received.content;
-                            Text_area_recieved_message.setText("" + counterx);
+                            //Text_area_recieved_message.setText("" + counterx);
                             if (counterx == 26) {
 
                                 me.Send(new int[]{13, myGame.getScoresSum()}, Message.Message_Type.SelectedScore);
