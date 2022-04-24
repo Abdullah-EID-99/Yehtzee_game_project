@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Yehtzee_game_project;
+package Yehtzee_game_project.codes;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -39,7 +39,7 @@ public class Utils {
                 scoreTypes.add(scoreType);
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Yehtzee.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return scoreTypes;
     }
@@ -49,7 +49,7 @@ public class Utils {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + dices[q] + ".png"));
+                img = ImageIO.read(new File(Utils.getPath() + "/data/images/dice_" + dices[q] + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,7 +102,7 @@ public class Utils {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + dices[q] + ".png"));
+                img = ImageIO.read(new File(Utils.getPath() + "/data/images/dice_" + dices[q] + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -117,7 +117,7 @@ public class Utils {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File("src/Yehtzee_game_project/dice_" + (q + 2) + ".png"));
+                img = ImageIO.read(new File(Utils.getPath() + "/data/images/dice_" + (q + 2) + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -158,4 +158,14 @@ public class Utils {
         }
     }
 
+    public static String getPath() {
+        String currentPath = null;
+        try {
+            currentPath = new java.io.File(".").getCanonicalPath();
+            currentPath = currentPath.substring(0, currentPath.indexOf("Yehtzee") + 7);//  C:\Users\Dell\Documents\NetBeansProjects\Yehtzee
+        } catch (IOException ex) {
+            Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return currentPath;
+    }
 }

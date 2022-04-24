@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Yehtzee_game_project;
+package Yehtzee_game_project.codes;
 
-import game.Message;
+
+import Yehtzee_game_project.game.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
