@@ -49,7 +49,7 @@ public class Utils {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File(Utils.getPath() + "/data/images/dice_" + dices[q] + ".png"));
+                img = ImageIO.read(new File(Utils.getPath() + "/src/Yehtzee_game_project/images/dice_" + dices[q] + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,7 +102,7 @@ public class Utils {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File(Utils.getPath() + "/data/images/dice_" + dices[q] + ".png"));
+                img = ImageIO.read(new File(Utils.getPath() + "/src/Yehtzee_game_project/images/dice_" + dices[q] + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -117,7 +117,7 @@ public class Utils {
         for (int q = 0; q < dices_labeles.length; q++) {
             BufferedImage img = null;
             try {
-                img = ImageIO.read(new File(Utils.getPath() + "/data/images/dice_" + (q + 2) + ".png"));
+                img = ImageIO.read(new File(Utils.getPath() + "/src/Yehtzee_game_project/images/dice_" + (q + 2) + ".png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

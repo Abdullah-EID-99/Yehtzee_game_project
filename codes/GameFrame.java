@@ -219,8 +219,8 @@ public class GameFrame extends javax.swing.JFrame {
     void ClearModel() {
         counterx = 0;
         tableModel.setRowCount(0);
-        
-        List<String> scoreTypes = Utils.readFile(Utils.getPath() + "/data/files/yeht.txt");
+
+        List<String> scoreTypes = Utils.readFile(Utils.getPath() + "/src/Yehtzee_game_project/files/yeht.txt");
         for (String scoreType : scoreTypes) {
             tableModel.addRow(new String[]{scoreType, null, null});
         }
@@ -252,7 +252,7 @@ public class GameFrame extends javax.swing.JFrame {
 
         Utils.checkBoxesSetVisible(dices_checkBoxes, false);
         tableModel.setColumnIdentifiers(new String[]{"", "player1", "player2"});
-        List<String> scoreTypes = Utils.readFile(Utils.getPath() + "/data/files/yeht.txt");
+        List<String> scoreTypes = Utils.readFile(Utils.getPath() + "/src/Yehtzee_game_project/files/yeht.txt");
         for (String scoreType : scoreTypes) {
             tableModel.addRow(new String[]{scoreType, null, null});
         }
