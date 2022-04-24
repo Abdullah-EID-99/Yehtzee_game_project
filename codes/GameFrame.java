@@ -22,41 +22,53 @@ import javax.swing.table.DefaultTableModel;
  * @author Dell
  */
 public class GameFrame extends javax.swing.JFrame {
-
+    //counterx oyunu sonlandırmak için kullanılır, counterx 26 olduğunda oyun bitmiş olacak
     static int counterx = 0;
+    // rollCount oyuncunun kaç kere zar attığını tutar
     int rollCount = 0;
+    // oyunu çalıştınca oluşturulur ve oyun esnasında onun üzerinden iletişim sağlanır
     Client me;
+    // oyunu çalıştınca myGame nesnesi oluşturulur
     YehtzeeGame myGame;
+    // oyuncunun önündeki zar taşların yerleri
     JLabel[] myLabels = new JLabel[5];
+    // ortadaki zar taşların yerleri
     JLabel[] middle_labeles = new JLabel[5];
+    // oyuncunun rakibinin önündeki zar taşların yerleri
     JLabel[] rivalLabels = new JLabel[5];
+    // zar taşların altındeki checkBoxlar
     JCheckBox dices_checkBoxes[] = new JCheckBox[5];
+    // puan tablosunun modeli
     DefaultTableModel tableModel = new DefaultTableModel();
 
+    // Bu metodu çalıştırarak bir oyuncu hem servera bağlanmış olur hem de serverı bti thread üzerinden dinlemeye başlar 
     void startAndListenThead() {
-
+        
         myThread = new Thread(() -> {
             rival_name_label.setText("waiting for rival ...");
+            // client oluştur
             me = new Client();
+            // servera bağlan
             me.Start("184.72.69.97", 2000);
             //me.Start("localhost", 2000);
+            // server oyuncunu adını yolla
             me.Send(name_txt_field.getText(), Message.Message_Type.Name);
             me.myName = name_txt_field.getText();
             start_btn.setEnabled(false);
             name_txt_field.setEditable(false);
             while (me.socket.isConnected()) {
                 try {
-                    //mesaj gelmesini bloking olarak dinyelen komut
                     Message received = (Message) (me.sInput.readObject());
-                    //mesaj gelirse bu satıra geçer
-                    //mesaj tipine göre yapılacak işlemi ayır.
                     switch (received.type) {
                         case Name:
                             break;
                         case RivalConnected:
+                            // rakibinin adını oku
                             String rivalName = received.content.toString();
                             me.myRivalName = rivalName;
+                            // rakibinin adını yerine yaz
                             rival_name_label.setText(rivalName);
+                            // oyuncunun ve rakibinin adını modele yaz
                             tableModel.setColumnIdentifiers(new String[]{"", name_txt_field.getText(), rivalName});
                             messge_txt_field.setEnabled(true);
                             send_message_btn.setEnabled(true);
@@ -66,52 +78,50 @@ public class GameFrame extends javax.swing.JFrame {
                             break;
                         case Text:
                             String d = received.content.toString();
+                            //mesaj gelirse yerine yaz
                             Text_area_recieved_message.append(me.myRivalName + ": " + d + "\n");
                             break;
                         case SelectedScore:
                             int rivalSelectedScore[] = (int[]) received.content;
-                            //System.out.println("score " + rivalSelectedScore[1]);
+                            //rivalSelectedScore[1] --> rakibin seçtiği puan, rivalSelectedScore[0] --> rakibin seçtiği puanın indexi
+                            //rakibin seçtiği puanı modele yaz
                             tableModel.setValueAt(rivalSelectedScore[1], rivalSelectedScore[0], 2);
                             break;
                         case start:
                             infoTextField.setVisible(true);
                             boolean start = (boolean) received.content;
+                            // start true ise oyuncu oyuna başlar false ise rakip başlar
                             if (start) {
                                 infoTextField.setBackground(Color.GREEN);
                                 infoTextField.setText("Your turn!");
                                 if (dice_1.getIcon() == null) {
                                     Utils.changeLabelsIcons(middle_labeles, myLabels);
-//                                    for (int i = 0; i < myLabels.length; i++) {
-//                                        myLabels[i].setIcon(middle_labeles[i].getIcon());
-//                                    }
-                                    Utils.clearLabeles(middle_labeles);
+                                    Utils.clearLabelesIcons(middle_labeles);
                                 }
                                 rollDice_btn.setEnabled(true);
                             } else {
                                 infoTextField.setBackground(Color.RED);
                                 infoTextField.setText(me.myRivalName + "'s turn!");
                                 Utils.changeLabelsIcons(myLabels, rivalLabels);
-
-//                                for (int i = 0; i < rivalLabels.length; i++) {
-//                                    rivalLabels[i].setIcon(myLabels[i].getIcon());
-//                                }
-                                Utils.clearLabeles(myLabels);
+                                Utils.clearLabelesIcons(myLabels);
                             }
                             break;
                         case dices:
+                            //rakibinin atığı zar taşları
                             int arr[] = (int[]) received.content;
-                            Utils.clearLabeles(rivalLabels);
+                            Utils.clearLabelesIcons(rivalLabels);
+                            //rakibinin atığı zar taşlarına ait ikonları labellara yükle
                             Utils.loadIconsToLabels(middle_labeles, arr);
                             break;
                         case counter:
                             counterx = (int) received.content;
                             //Text_area_recieved_message.setText("" + counterx);
                             if (counterx == 26) {
-
+                                // counterx 26'ya eşitse oyun bitmiştir
                                 me.Send(new int[]{13, myGame.getScoresSum()}, Message.Message_Type.SelectedScore);
                                 me.Send(new int[]{14, myGame.getBonus()}, Message.Message_Type.SelectedScore);
                                 me.Send(myGame.getScoresSum() + myGame.getBonus(), Message.Message_Type.finish_1);
-                                Utils.clearLabeles(middle_labeles);
+                                Utils.clearLabelesIcons(middle_labeles);
                             }
                             break;
                         case finish_1:
@@ -123,7 +133,7 @@ public class GameFrame extends javax.swing.JFrame {
                             tableModel.setValueAt(rivalScore, 15, 2);
                             tableModel.setValueAt(myGame.getScoresSum(), 13, 1);
                             tableModel.setValueAt(myGame.getScoresSum() + myGame.getBonus(), 15, 1);
-                            Utils.clearLabeles(rivalLabels);
+                            Utils.clearLabelesIcons(rivalLabels);
 
                             break;
                         case finish_2:
@@ -139,7 +149,7 @@ public class GameFrame extends javax.swing.JFrame {
                                 win.setForeground(Color.GREEN);
                                 win.setText("You won :)");
                             } else {
-                                win.setForeground(Color.red);
+                                win.setForeground(Color.RED);
                                 win.setText(me.myRivalName + " won :(");
                             }
                             myName_label.setText(me.myName);
@@ -155,7 +165,7 @@ public class GameFrame extends javax.swing.JFrame {
                                 win.setForeground(Color.GREEN);
                                 win.setText("You won :)");
                             } else {
-                                win.setForeground(Color.red);
+                                win.setForeground(Color.RED);
                                 win.setText(me.myRivalName + " won :(");
                             }
                             myName_label.setText(me.myName);
@@ -169,7 +179,6 @@ public class GameFrame extends javax.swing.JFrame {
                                 infoTextField.setVisible(true);
                                 infoTextField.setBackground(Color.RED);
                                 infoTextField.setText(me.myRivalName + "'s turn!");
-                                //me.Send(true, Message.Message_Type.start);//***
                                 clearScoreLabels();
                                 ClearModel();
                                 myGame = new YehtzeeGame(tableModel, middle_labeles);
@@ -186,7 +195,6 @@ public class GameFrame extends javax.swing.JFrame {
                                 infoTextField.setVisible(true);
                                 infoTextField.setBackground(Color.GREEN);
                                 infoTextField.setText("Your turn!");
-                                //me.Send(false, Message.Message_Type.start);//***
                                 clearScoreLabels();
                                 ClearModel();
                                 myGame = new YehtzeeGame(tableModel, middle_labeles);
@@ -213,6 +221,7 @@ public class GameFrame extends javax.swing.JFrame {
                 }
             }
         });
+        // thread'i başlat
         myThread.start();
     }
 
@@ -502,6 +511,7 @@ public class GameFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void start_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_btnActionPerformed
+        // servera bağlan ve dinleme threadini başlat
         startAndListenThead();
     }//GEN-LAST:event_start_btnActionPerformed
 
@@ -519,7 +529,7 @@ public class GameFrame extends javax.swing.JFrame {
                 scoreTable.setEnabled(false);
                 scoreTable.clearSelection();
                 Utils.changeLabelsIcons(middle_labeles, rivalLabels);
-                Utils.clearLabeles(middle_labeles);
+                Utils.clearLabelesIcons(middle_labeles);
                 Utils.checkBoxesSetVisible(dices_checkBoxes, false);
                 Utils.clearCheckBoxSelection(dices_checkBoxes);
 
@@ -557,7 +567,7 @@ public class GameFrame extends javax.swing.JFrame {
             case 0:
                 scoreTable.setEnabled(true);
                 Utils.checkBoxesSetVisible(dices_checkBoxes, true);
-                Utils.clearLabeles(myLabels);
+                Utils.clearLabelesIcons(myLabels);
                 infoTextField.setText("Click the dice you want to change. You have 2 throw left.");
                 rollCount++;
                 break;
@@ -578,12 +588,14 @@ public class GameFrame extends javax.swing.JFrame {
 
     private void send_message_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_send_message_btnActionPerformed
         // TODO add your handling code here:
+        // mesajımı rakibime yolla
         senMessage();
     }//GEN-LAST:event_send_message_btnActionPerformed
 
     private void messge_txt_fieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_messge_txt_fieldKeyTyped
         // TODO add your handling code here:
         if (evt.getKeyChar() == KeyEvent.VK_ENTER) {
+            // mesajımı rakibime yolla
             senMessage();
         }
     }//GEN-LAST:event_messge_txt_fieldKeyTyped
@@ -593,6 +605,7 @@ public class GameFrame extends javax.swing.JFrame {
     private void name_txt_fieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_name_txt_fieldKeyTyped
         // TODO add your handling code here:
         if (evt.getKeyChar() == KeyEvent.VK_ENTER && start_btn.isEnabled()) {
+            // servera bağlan ve dinleme threadini başlat
             startAndListenThead();
         }
     }//GEN-LAST:event_name_txt_fieldKeyTyped

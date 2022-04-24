@@ -27,8 +27,8 @@ public class YehtzeeGame {
         this.dices = new int[5];
         // upper section combinations 
         this.upperSectionCombinations = new int[6];
-        // lower section combinations 
-        this.lowerSectionCombinations = new int[7];
+//        // lower section combinations 
+//        this.lowerSectionCombinations = new int[7];
         // geçici olarak hesapladığımız puanları tutacak
         this.temp_scores = new int[13];
         // oyuncunun kalıcı olarak seçtiği puanları tutacak
@@ -49,7 +49,7 @@ public class YehtzeeGame {
     private final int CHANCE = 5;
     private final int YAHTZEE = 6;
     private int[] upperSectionCombinations;
-    private int[] lowerSectionCombinations;
+//    private int[] lowerSectionCombinations;
     private int[] temp_scores;
     private int[] scores;
     private int[] dices;
@@ -159,7 +159,7 @@ public class YehtzeeGame {
         return false;
     }
     // atılan zar taşların değerlerini toplar
-    public int chance(int dices[]) {
+    public int chance() {
         int sum = 0;
         for (int i = 0; i < dices.length; i++) {
             sum += dices[i];
@@ -168,7 +168,7 @@ public class YehtzeeGame {
     }
     // bütün puanları hesaplar
     public void calculateScores() {
-        Utils.clearArray(lowerSectionCombinations);
+//        Utils.clearArray(lowerSectionCombinations);
         Utils.clearArray(temp_scores);
 
         calculateUpperSectionCombinations();

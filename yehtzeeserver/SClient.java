@@ -69,8 +69,6 @@ public class SClient extends Thread {
                 switch (received.type) {
                     case Name:
                         this.name = received.content.toString();
-                        // isim verisini gönderdikten sonra eşleştirme işlemine başla
-//                            this.pairThread.start();
                         break;
                     case Disconnect:
                         this.stop();
@@ -78,7 +76,6 @@ public class SClient extends Thread {
                         this.sOutput.close();
                         this.sInput.close();
                         this.soket.close();
-//                        this.myPairThread.stop();
                         Server.clients.remove(this);
                         break;
                     case Text:
