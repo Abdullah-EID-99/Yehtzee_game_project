@@ -18,34 +18,34 @@ import java.util.logging.Logger;
 
 class PairingThread extends Thread {
 
-    SClient client;
+    SClient firstClient;
 
     PairingThread(SClient TheClient) {
-        this.client = TheClient;
+        this.firstClient = TheClient;
     }
 
     public void run() {
         //client bağlı ve eşleşmemiş olduğu durumda dön
-        while (client.soket.isConnected() && client.paired == false) {
+        while (firstClient.soket.isConnected() && firstClient.paired == false) {
             try {
                 //lock mekanizması
-                //sadece bir client içeri grebilir
+                //sadece bir firstClient içeri grebilir
                 //diğerleri release olana kadar bekler
                 Server.pairingLock.acquire(1);
 
                 //client eğer eşleşmemişse gir
-                if (!client.paired) {
+                if (!firstClient.paired) {
                     //eşleşme sağlanana kadar dön
-                    while (client.rival == null && client.soket.isConnected()) {
+                    while (firstClient.rival == null && firstClient.soket.isConnected()) {
                         //liste içerisinde eş arıyor
-                        for (SClient clnt : Server.clients) {
-                            if (client != clnt && clnt.rival == null) {
+                        for (SClient scondClient : Server.clients) {
+                            if (firstClient != scondClient && scondClient.rival == null) {
                                 //eşleşme sağlandı ve gerekli işaretlemeler yapıldı
-                                clnt.paired = true;
-                                clnt.rival = client;
-                                client.rival = clnt;
-                                client.paired = true;
-                                System.out.println("pairec success");
+                                scondClient.paired = true;
+                                scondClient.rival = firstClient;
+                                firstClient.rival = scondClient;
+                                firstClient.paired = true;
+                                System.out.println(firstClient.name+" and "+scondClient.name+" paired successfully");
                                 break;
                             }
                         }
@@ -57,22 +57,22 @@ class PairingThread extends Thread {
                     //her iki tarafada eşleşme mesajı gönder 
                     //oyunu başlat
                     Message msg1 = new Message(Message.Message_Type.RivalConnected);
-                    msg1.content = client.name;
-                    Server.Send(client.rival, msg1);
+                    msg1.content = firstClient.name;
+                    Server.Send(firstClient.rival, msg1);
 
                     Message msg2 = new Message(Message.Message_Type.RivalConnected);
-                    msg2.content = client.rival.name;
-                    Server.Send(client, msg2);
+                    msg2.content = firstClient.rival.name;
+                    Server.Send(firstClient, msg2);
 
                     boolean start = Math.random() > 0.5;
 
                     Message msg1a = new Message(Message.Message_Type.start);
                     msg1a.content = start;
-                    Server.Send(client.rival, msg1a);
+                    Server.Send(firstClient.rival, msg1a);
 
                     Message msg2a = new Message(Message.Message_Type.start);
                     msg2a.content = !start;
-                    Server.Send(client, msg2a);
+                    Server.Send(firstClient, msg2a);
                 }
                 //lock mekanizmasını servest bırak
                 //bırakılmazsa deadlock olur.
@@ -94,11 +94,11 @@ class ServerThread extends Thread {
             try {
                 System.out.println("Wait for a client...");
                 // clienti bekleyen satır
-                //bir client gelene kadar bekler
+                //bir firstClient gelene kadar bekler
                 Socket clientSocket = Server.serverSocket.accept();
                 //client gelirse bu satıra geçer
                 System.out.println("A client have come...");
-                //gelen client soketinden bir sclient nesnesi oluştur
+                //gelen firstClient soketinden bir sclient nesnesi oluştur
                 //bir adet id de kendimiz verdik
                 SClient nclient = new SClient(clientSocket, Server.client_id);
 
@@ -121,7 +121,7 @@ public class Server {
 
     // Socket of the server
     public static ServerSocket serverSocket;
-    // client id 
+    // firstClient id 
     public static int client_id = 0;
     // The port that the server will be liston to
     public static int port;
@@ -130,7 +130,7 @@ public class Server {
     // list of all cleints that are connected
     public static ArrayList<SClient> clients = new ArrayList<>();
 
-    // only one client can enter pairing thread to search for a rival at the same time
+    // only one firstClient can enter pairing thread to search for a rival at the same time
     public static Semaphore pairingLock = new Semaphore(1, true);
 
     public static void Start(int port_number) {
